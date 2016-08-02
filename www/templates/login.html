@@ -4,15 +4,15 @@
             <ion-list id="login-list2" class=" ">
                 <label class="item item-input " id="login-input4">
                     <span class="input-label">Username</span>
-                    <input type="text" placeholder="">
+                    <input type="text" ng-model="input.username" placeholder="">
                 </label>
                 <label class="item item-input " id="login-input5">
                     <span class="input-label">Password</span>
-                    <input type="password" placeholder="">
+                    <input type="password" ng-model="input.password" placeholder="">
                 </label>
             </ion-list>
             <div class="spacer" style="height: 40px;"></div>
-            <button id="login-button2" class=" button button-royal  button-block ">Log in</button>
+            <button id="login-button2" ng-click="login()" class=" button button-royal  button-block ">Log in</button>
             <a ui-sref="signup" id="login-button3" class=" button button-energized  button-block button-outline ">Or create an account</a>
         </form>
     </ion-content>
