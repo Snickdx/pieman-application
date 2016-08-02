@@ -1,0 +1,1 @@
+# firebase-ionic-loc-logger
