@@ -1,11 +1,20 @@
 <ion-view title="Pie Man Status" id="page2" class=" ">
     <ion-content padding="true" class="has-header">
-        <div class="spacer" style="width: 300px; height: 260px;"></div>
-        <ion-list id="pieManStatus-list3" class=" ">
-            <ion-item class="balanced  " id="pieManStatus-list-item2">Item 2</ion-item>
-            <ion-item class="balanced  " id="pieManStatus-list-item1">Item 1</ion-item>
-            <ion-item class="balanced  " id="pieManStatus-list-item3">Item 3</ion-item>
-        </ion-list>
-        <a ng-click="report()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right ion-alert ">Report</a>
+        <div class="row">
+          <div class="col col-center text-center">
+            <h1>Ey, De pie man in Sac awah?</h1>
+            <h2>{{time}}</h2>
+            <h2  style="color:#33CE3F;font-weight:600;text-align:center;" class=" ">{{data.present}} <span ng-if="data.present == 1">Person Says</span> <span ng-if="data.present != 1">People Say</span> YES</h2>
+            <h2  style="color:red;font-weight:600;text-align:center;" class=" ">{{data.absent}} <span ng-if="data.absent == 1">Person Says</span> <span ng-if="data.absent != 1">People Say</span> NO</h2>
+            <h3> Votes taken between {{data.oldest}} and {{data.newest}}</h3>
+          </div>
+        </div>
+        <div class="spacer" style="width: 300px; height: 150px;"></div>
+        <!--<ion-list id="pieManStatus-list3" class=" ">-->
+            <!--<ion-item class="balanced  " id="pieManStatus-list-item2">Item 2</ion-item>-->
+            <!--<ion-item class="balanced  " id="pieManStatus-list-item1">Item 1</ion-item>-->
+            <!--<ion-item class="balanced  " id="pieManStatus-list-item3">Item 3</ion-item>-->
+        <!--</ion-list>-->
+        <a ng-click="report()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right ion-alert ">Make A Report</a>
     </ion-content>
 </ion-view>

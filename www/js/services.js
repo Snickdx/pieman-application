@@ -17,22 +17,22 @@ angular.module('app.services', [])
 
   obj.auth = null;
 
+  obj.userData = null;
+
   obj.login = function(email, password){
     return auth.$signInWithEmailAndPassword(email, password).then(function(authData) {
       console.log("Logged in as:", authData.uid);
       obj.auth = authData;
       return obj.get('users/'+authData.uid).then(function(data){
-        for(var prop in data){
-          if(data.hasOwnProperty(prop) && !authData.hasOwnProperty(prop))authData[prop] = data[prop]
-        }
-        console.log(authData);
-        return authData;
+        obj.userData = data;
+        console.log(obj.auth);
+        console.log(data);
+        return obj.userData;
       });
-
     }).catch(function(error) {
       console.error("Authentication failed:", error);
       return {
-        uid: -1,
+        id: -1,
         error: error
       };
     });
@@ -54,21 +54,16 @@ angular.module('app.services', [])
     return auth.$createUserWithEmailAndPassword(email, password).then(function(authData){
       obj.auth=authData;
       console.log('account created!');
-      authData.email = email;
-      authData.username = username;
-      authData.downvotes = 0;
-      authData.id = authData.uid;
-      authData.upvotes = 0;
-      authData.followers = 0;
-      obj.set('users/'+authData.uid,{
+      obj.userData = {
         downvotes: 0,
         email: email,
         followers: 0,
         id: authData.uid,
         upvotes: 0,
         username: username
-      });
-      return authData;
+      };
+      obj.set('users/'+authData.uid, obj.userData);
+      return obj.userData;
     }).catch(function(error) {
       return {
         uid: -1,
@@ -84,6 +79,16 @@ angular.module('app.services', [])
     }, function(error) {
       return {status: -1, error: error};
     });
+  };
+
+  obj.getList = function(child){};
+
+  obj.getOrderedbyLast = function(child, prop, num){
+    return db.ref(child).orderByChild(prop).limitToLast(num);
+  };
+
+  obj.push = function(child, data){
+    db.ref(child).push().set(data);
   };
 
   obj.getCollection = function(){};

@@ -2,10 +2,10 @@
     <ion-content padding="true" class="has-header">
         <form id="leaveFeedback-form4" class="list ">
             <label class="item item-input " id="leaveFeedback-textarea1">
-                <span class="input-label">Comments</span><textarea placeholder=""></textarea>
+                <span class="input-label">Comments</span><textarea ng-model="input.feedback" placeholder=""></textarea>
             </label>
         </form>
         <div class="spacer" style="height: 100px;"></div>
-        <button id="leaveFeedback-button6" class=" button button-royal  button-block ">Send</button>
+        <button id="leaveFeedback-button6" class=" button button-royal  button-block " ng-click="send()">Send</button>
     </ion-content>
 </ion-view>

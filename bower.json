@@ -8,6 +8,7 @@
     "angular-nvd3": "~1.0.8",
     "angularfire": "~2.0.1",
     "firebase": "~3.2.1",
-    "ionic-toast": "~0.4.1"
+    "ionic-toast": "~0.4.1",
+    "moment": "~2.14.1"
   }
 }
