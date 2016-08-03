@@ -25,7 +25,7 @@ angular.module('app.controllers', [])
 
         if(ms < 3600000){
           if(flag){
-            $scope.data.oldest = moment(snapshot.val().time).format('hh:mm:ss');
+            $scope.data.oldest = moment(snapshot.val().time).format('hh:mm:ss A');
             flag = false
           }
           $scope.data.list.push(snapshot.val());
