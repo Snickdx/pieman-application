@@ -90,6 +90,7 @@ angular.module('app.controllers', [])
       password:""
     };
 
+
     $scope.login = function(){
       FB.login($scope.input.email, $scope.input.password).then(function(userData){
         if(userData.id == -1){
