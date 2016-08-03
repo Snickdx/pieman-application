@@ -86,12 +86,12 @@ angular.module('app.controllers', [])
 
   .controller('loginCtrl', function($scope, FB, ionicToast, $location) {
     $scope.input={
-      username:"",
+      email:"",
       password:""
     };
 
     $scope.login = function(){
-      FB.login($scope.input.username, $scope.input.password).then(function(userData){
+      FB.login($scope.input.email, $scope.input.password).then(function(userData){
         if(userData.id == -1){
           ionicToast.show('Login Failed: '+userData.error, 'bottom', false, 3000);
         }else{
