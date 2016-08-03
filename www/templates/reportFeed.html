@@ -1,17 +1,23 @@
 <ion-view title="Report Feed" id="page3" class=" ">
     <ion-content padding="true" class="has-header">
-      <h1 class="text-center">Coming Soon!</h1>
-        <ion-list id="reportFeed-list5" class=" ">
-            <ion-item class="item-icon-left  " id="reportFeed-list-item6">
-                <i class="icon ion-ionic"></i>Item</ion-item>
-            <ion-item class="item-icon-left  " id="reportFeed-list-item4">
-                <i class="icon ion-ionic"></i>Item</ion-item>
-            <ion-item class="item-icon-left  " id="reportFeed-list-item10">
-                <i class="icon ion-ionic"></i>Item</ion-item>
-            <ion-item class="item-icon-left  " id="reportFeed-list-item12">
-                <i class="icon ion-ionic"></i>Item</ion-item>
-            <ion-item class="item-icon-left  " id="reportFeed-list-item11">
-                <i class="icon ion-ionic"></i>Item</ion-item>
-        </ion-list>
+        <div id="reportFeed-list5" class="list">
+          <h3 class="text-center">Showing 10 latest Reports</h3>
+            <div class="item item-button-right" ng-repeat="post in feed | limitTo: -10 | orderBy:'sort':true ">
+                <div class="row">
+                  <div class="col">
+                    <i ng-if="post.present" class="balanced icon ion-checkmark-circled"></i>
+                    <i ng-if="!post.present" class="assertive icon ion-close-circled"></i>
+
+                    {{post.user}}
+                  </div>
+                  <div class="col col-center">
+                    <span class="badge badge-stable">{{format(post.time)}}</span>
+                  </div>
+                </div>
+                <!--<button class="button button-royal">-->
+                  <!--<i class="icon ion-social-rss"></i>-->
+                <!--</button>-->
+            </div>
+        </div>
     </ion-content>
 </ion-view>

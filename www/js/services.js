@@ -73,12 +73,14 @@ angular.module('app.services', [])
   };
 
   obj.logout = function(){
-    return auth.signOut().then(function() {
+    try {
+      auth.$signOut();
       obj.auth = null;
-      return { status : 0};
-    }, function(error) {
-      return {status: -1, error: error};
-    });
+      return $q.when({ status : 0});
+    }
+    catch(error) {
+      return $q.when({status: -1, error: error});
+    }
   };
 
   obj.getList = function(child){};
@@ -91,7 +93,9 @@ angular.module('app.services', [])
     db.ref(child).push().set(data);
   };
 
-  obj.getCollection = function(){};
+  obj.getCollection = function(child){
+    return $firebaseArray(db.ref(child));
+  };
 
   obj.getObject = function(){};
 
