@@ -7,7 +7,7 @@ angular.module('app.controllers', [])
     $scope.options = {
       chart: {
         type: 'pieChart',
-        height: 300,
+        height: 280,
         x: function(d){return d.key;},
         y: function(d){return d.y;},
         showLabels: true,
