@@ -3,8 +3,33 @@ angular.module('app.controllers', [])
   .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $interval) {
 
     $scope.time = moment().format('hh:mm:ss A');
-
-    $scope.data = {};
+  
+    $scope.options = {
+      chart: {
+        type: 'pieChart',
+        height: 300,
+        x: function(d){return d.key;},
+        y: function(d){return d.y;},
+        showLabels: true,
+        duration: 400,
+        labelThreshold: 0.01,
+        labelSunbeamLayout: true,
+        tooltip:{
+          enabled: true
+        }
+      }
+    };
+  
+    $scope.data = [
+      {
+        key: "Yes",
+        y: 0
+      },
+      {
+        key: "No",
+        y: 0
+      }
+    ];
 
     $interval(function() {
       $scope.time = moment().format('hh:mm:ss A');
@@ -15,8 +40,8 @@ angular.module('app.controllers', [])
     }, 1000);
 
     $scope.updateData = function(){
-      $scope.data.present = 0;
-      $scope.data.absent = 0;
+      $scope.data[0].y = 0;
+      $scope.data[1].y = 0;
       $scope.data.list = [];
       var flag = true;
       var latest = null;
@@ -31,8 +56,8 @@ angular.module('app.controllers', [])
             flag = false
           }
           $scope.data.list.push(snapshot.val());
-          if(snapshot.val().present)$scope.data.present++;
-          else $scope.data.absent++;
+          if(snapshot.val().present)$scope.data[0].y++;
+          else $scope.data[1].y++;
         }
 
       });

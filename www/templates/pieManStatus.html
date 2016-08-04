@@ -2,11 +2,12 @@
     <ion-content padding="true" class="has-header">
         <div class="row">
           <div class="col col-center text-center">
-            <h1>Ey, De pie man in Sac awah?</h1>
-            <h2>{{time}}</h2>
-            <h2  style="color:#33CE3F;font-weight:600;text-align:center;" class=" ">{{data.present}} {{ data.present == 1 ? "Person Says" : "People Say"}} YES</h2>
-            <h2  style="color:red;font-weight:600;text-align:center;" class=" ">{{data.absent}} {{ data.absent == 1 ? "Person Says" : "People Say"}} NO</h2>
-            <h3> Showing reports taken between {{data.start}} and {{data.end}}</h3>
+            <h3>Ey, De pie man in Sac awah?</h3>
+            <h4>{{time}}</h4>
+            <nvd3 options="options" data="data"></nvd3>
+            <!--<h2  style="color:#33CE3F;font-weight:600;text-align:center;" class=" ">{{data.present}} {{ data.present == 1 ? "Person Says" : "People Say"}} YES</h2>-->
+            <!--<h2  style="color:red;font-weight:600;text-align:center;" class=" ">{{data.absent}} {{ data.absent == 1 ? "Person Says" : "People Say"}} NO</h2>-->
+            <h4> Showing reports taken between {{data.start}} and {{data.end}}</h4>
           </div>
         </div>
         <!--<ion-list id="pieManStatus-list3" class=" ">-->
