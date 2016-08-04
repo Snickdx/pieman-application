@@ -109,6 +109,7 @@ angular.module('app.controllers', [])
         }else{
           $location.path('/status');
           ionicToast.show('Login Successful', 'bottom', false, 1000);
+          console.log(FB.getAuth());
           $rootScope.$broadcast('loggedIn');
         }
       });
@@ -159,8 +160,8 @@ angular.module('app.controllers', [])
           var ms = moment().diff(moment(post.time,"x"));
           if(ms < 3600000){
             ionicToast.show('Sorry you cannot report again for the next '+parseInt((3600000-ms)/60000)+' minutes', 'bottom', false, 3000);
+            return -1;
           }
-          return -1;
         }
 
         FB.push('/feed',{
@@ -173,7 +174,6 @@ angular.module('app.controllers', [])
 
         $location.path('/report');
         ionicToast.show('Report Sent!', 'bottom', false, 3000);
-
         return 0;
       });
 

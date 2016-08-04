@@ -1,6 +1,6 @@
 angular.module('app.services', [])
 
-.factory('FB', ['$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', function($http, $firebaseAuth, $firebaseArray, $firebaseObject, $q){
+.factory('FB', ['$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', '$rootScope', function($http, $firebaseAuth, $firebaseArray, $firebaseObject, $q, $rootScope){
   var config = {
     apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
     authDomain: "pieman-d47da.firebaseapp.com",
@@ -9,8 +9,8 @@ angular.module('app.services', [])
   };
   firebase.initializeApp(config);
 
-  var auth = $firebaseAuth(firebase.auth());
-
+  var auth = $firebaseAuth();
+  
   var db = firebase.database();
 
   var obj = {};
@@ -25,8 +25,6 @@ angular.module('app.services', [])
       obj.auth = authData;
       return obj.get('users/'+authData.uid).then(function(data){
         obj.userData = data;
-        console.log(obj.auth);
-        console.log(data);
         return obj.userData;
       });
     }).catch(function(error) {
@@ -87,6 +85,17 @@ angular.module('app.services', [])
 
   obj.getOrderedbyLast = function(child, prop, num){
     return db.ref(child).orderByChild(prop).limitToLast(num);
+  };
+  
+  obj.checkAuth = function(){
+    return auth.$onAuthStateChanged(function(authData){
+      obj.auth = authData;
+      return obj.get('users/'+authData.uid).then(function(data){
+        obj.userData = data;
+        $rootScope.$broadcast('loggedIn');
+        return obj.userData;
+      });
+    })
   };
 
   obj.push = function(child, data){
