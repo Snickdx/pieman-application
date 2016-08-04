@@ -184,7 +184,7 @@ angular.module('app.controllers', [])
 
   })
 
-  .controller('menuCtrl', function(FB, $scope, ionicToast){
+  .controller('menuCtrl', function(FB, $scope, ionicToast, $location){
       $scope.username = null;
       $scope.$on('loggedIn', function(event) {
         console.log('logged In!');
@@ -194,5 +194,18 @@ angular.module('app.controllers', [])
         FB.logout();
         ionicToast.show('Logged Out!', 'bottom', false, 4000);
         $scope.username = null;
+      };
+      
+      $scope.anonLogin = function(){
+        var authData = FB.anonLogin();
+        if(authData == null ){
+          ionicToast.show('Error Logging In, contact admin', 'bottom', false, 4000);
+        }else if(authData.uid == -1){
+          ionicToast.show('Error: '+authData.error.code+' '+authData.error.message, 'bottom', false, 4000);
+        }else{
+          ionicToast.show('Logged In!', 'bottom', false, 4000);
+          $location.path('/status');
+        }
+        
       }
   });

@@ -90,12 +90,29 @@ angular.module('app.services', [])
   obj.checkAuth = function(){
     return auth.$onAuthStateChanged(function(authData){
       obj.auth = authData;
-      return obj.get('users/'+authData.uid).then(function(data){
-        obj.userData = data;
-        $rootScope.$broadcast('loggedIn');
-        return obj.userData;
-      });
+      if(authData != null){
+        if(authData.isAnonymous){
+          obj.userData = {username:'Anonymous'};
+          $rootScope.$broadcast('loggedIn');
+          return obj.userData;
+        }else{
+          return obj.get('users/'+authData.uid).then(function(data){
+            obj.userData = data;
+            $rootScope.$broadcast('loggedIn');
+            return obj.userData;
+          });
+        }
+      }
+      return authData;
+     
     })
+  };
+  
+  obj.anonLogin = function(){
+    auth.$signInAnonymously().catch(function(error) {
+      return {uid: -1, error:error};
+    });
+     return obj.checkAuth();
   };
 
   obj.push = function(child, data){
