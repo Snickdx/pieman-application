@@ -1,11 +1,11 @@
 {
   "name": "PieMan",
   "version": "0.9.0",
-  "repository":{
-    "type":"git",
-    "url":"https://github.com/Snickdx/firebase-ionic-loc-logger"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Snickdx/firebase-ionic-loc-logger"
   },
-  "license":"MIT",
+  "license": "MIT",
   "description": "pie: An Ionic project",
   "dependencies": {
     "gulp": "^3.5.6",
@@ -15,9 +15,10 @@
     "gulp-rename": "^1.2.0"
   },
   "devDependencies": {
-    "bower": "^1.3.3",
+    "bower": "^1.8.0",
     "gulp-util": "^2.2.14",
-    "shelljs": "^0.3.0"
+    "shelljs": "0.7.5",
+    "sw-precache": "^4.2.1"
   },
   "cordovaPlugins": [
     "cordova-plugin-device",

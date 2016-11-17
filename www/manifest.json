@@ -1,0 +1,20 @@
+{
+  "name": "Pieman",
+  "short_name": "Pieman",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#886aea",
+  "theme_color": "#886aea",
+  "icons": [
+    {
+      "src": "img/pieman.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "img/pieman-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ]
+}
