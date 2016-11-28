@@ -16,3 +16,4 @@ platforms
 *.DS_Store
 /www/lib/
 
+/firebase-debug.log

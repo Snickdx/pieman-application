@@ -1,10 +1,12 @@
 {
-  "name": "Pieman",
-  "short_name": "Pieman",
+  "name": "Whey Pieman?",
+  "short_name": "Whey Pieman?",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#886aea",
+  "background_color": "white",
   "theme_color": "#886aea",
+  "orientation": "portrait",
+  "gcm_sender_id": "371107496995",
   "icons": [
     {
       "src": "img/pieman.png",

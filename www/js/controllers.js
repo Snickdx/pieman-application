@@ -87,12 +87,13 @@ angular.module('app.controllers', [])
   .controller('leaveFeedbackCtrl', function($scope, FB, ionicToast) {
     $scope.input = {};
     $scope.send = function(){
+      console.log(FB.userData);
       if(FB.auth == null)ionicToast.show('Login required, open top left menu to login', 'bottom', false, 4000);
       else{
         FB.push('userFeedback/'+FB.auth.uid, {
           message: $scope.input.feedback,
           user: FB.userData.username,
-          email: FB.userData.email
+          email: FB.userData.email == undefined ? 'anonymous' : FB.userData.email
         });
         ionicToast.show('Thanks!', 'bottom', false, 4000);
         $scope.input.feedback = "";
