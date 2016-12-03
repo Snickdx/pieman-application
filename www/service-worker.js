@@ -44,7 +44,6 @@ var cacheName = 'sw-precache-v2--' + (self.registration ? self.registration.scop
 var ignoreUrlParametersMatching = [/^utm_/];
 
 
-
 var addDirectoryIndex = function (originalUrl, index) {
     var url = new URL(originalUrl);
     if (url.pathname.slice(-1) === '/') {
@@ -53,8 +52,7 @@ var addDirectoryIndex = function (originalUrl, index) {
     return url.toString();
   };
 
-var createCacheKey = function (originalUrl, paramName, paramValue,
-                           dontCacheBustUrlsMatching) {
+var createCacheKey = function (originalUrl, paramName, paramValue, dontCacheBustUrlsMatching) {
     // Create a new URL object to avoid modifying originalUrl.
     var url = new URL(originalUrl);
 
@@ -82,8 +80,7 @@ var isPathWhitelisted = function (whitelist, absoluteUrlString) {
     });
   };
 
-var stripIgnoredUrlParameters = function (originalUrl,
-    ignoreUrlParametersMatching) {
+var stripIgnoredUrlParameters = function (originalUrl, ignoreUrlParametersMatching) {
     var url = new URL(originalUrl);
 
     url.search = url.search.slice(1) // Exclude initial '?'
@@ -239,7 +236,7 @@ self.addEventListener('notificationclick', function(event) {
   // Android doesn’t close the notification when you click on it
   // See: http://crbug.com/463146
   event.notification.close();
-  
+
   // This looks to see if the current is already open and
   // focuses if it is
   event.waitUntil(clients.matchAll({

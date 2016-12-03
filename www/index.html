@@ -34,6 +34,13 @@
     <!-- cordova script (this will be a 404 during development) -->
     <!--<script src="cordova.js"></script>-->
 
+    <!--<script>-->
+      <!--if ('serviceWorker' in navigator) {-->
+        <!--navigator.serviceWorker.register('service-worker.js')-->
+          <!--.then(function(){console.log('service worker installed')})-->
+          <!--.catch(function(err){console.log('Error', err)});-->
+      <!--}-->
+    <!--</script>-->
 
     <link href="css/ionic.app.css" rel="stylesheet">
 
@@ -58,6 +65,7 @@
         border-right: 0px;
       }
     </style>
+
     <script src="lib/moment/min/moment.min.js"></script>
     <script src="lib/d3/d3.min.js"></script>
     <script src="lib/nvd3/build/nv.d3.min.js"></script>
@@ -65,13 +73,16 @@
     <script src="lib/firebase/firebase.js"></script>
     <script src="lib/angularfire/dist/angularfire.min.js"></script>
     <script src="lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
+    <script src="lib/html5-desktop-notifications2/dist/Notification.min.js"></script>
+    <script src="lib/angular-web-notification/angular-web-notification.js"></script>
+
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
     <script src="js/routes.js"></script>
     <script src="js/services.js"></script>
     <script src="js/directives.js"></script>
-
     <script src="js/main.js"></script>
+
 
     <!-- Only required for Tab projects w/ pages in multiple tabs
     <script src="lib/ionicuirouter/ionicUIRouter.js"></script>
