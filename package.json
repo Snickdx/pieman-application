@@ -1,14 +1,14 @@
 {
   "name": "PieMan",
   "version": "0.9.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Snickdx/firebase-ionic-loc-logger"
+  "repository":{
+    "type":"git",
+    "url":"https://github.com/Snickdx/firebase-ionic-loc-logger"
   },
-  "scripts": {
-    "start": "node PieNotify/bin/www"
+  "engines": {
+    "node": "~4.2"
   },
-  "license": "MIT",
+  "license":"MIT",
   "description": "pie: An Ionic project",
   "dependencies": {
     "gulp": "^3.5.6",
@@ -16,23 +16,19 @@
     "gulp-concat": "^2.2.0",
     "gulp-minify-css": "^0.3.0",
     "gulp-rename": "^1.2.0",
-    "body-parser": "~1.15.2",
-    "cookie-parser": "~1.4.3",
-    "cors": "^2.8.1",
-    "debug": "~2.2.0",
-    "express": "~4.14.0",
-    "express-cors": "0.0.3",
-    "firebase": "^3.6.1",
-    "jade": "~1.11.0",
-    "morgan": "~1.7.0",
-    "serve-favicon": "~2.3.0",
-    "web-push": "^3.2.0"
+    "body-parser": "^1.15.2",
+    "express": "^4.13.4",
+    "web-push": "^3.1.0"
   },
   "devDependencies": {
-    "bower": "^1.8.0",
+    "bower": "^1.3.3",
     "gulp-util": "^2.2.14",
-    "shelljs": "0.7.5",
-    "sw-precache": "^4.2.1"
+    "shelljs": "^0.3.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "monitor": "nodemon app.js",
+    "deploy": "gcloud app deploy"
   },
   "cordovaPlugins": [
     "cordova-plugin-device",
