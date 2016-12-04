@@ -17,3 +17,4 @@ platforms
 /www/lib/
 
 /firebase-debug.log
+/PieNotify/node_modules/
