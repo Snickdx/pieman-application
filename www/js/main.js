@@ -1,94 +1,121 @@
+/* eslint-env browser, es6 */
 
-var endpoint;
-var key;
-var authSecret;
-if ('serviceWorker' in navigator) {
+'use strict';
+
+const applicationServerPublicKey = 'BAd4mNLFMoE4g_m2g2ZSSbEljvi_ROkFMwWgIVwSRp7IpoFUSu0pAqFFw-BunnFOzpvWkKvF10CrT1oT91IOALA';
+
+const pushButton = document.querySelector('.js-push-btn');
+
+let isSubscribed = false;
+let swRegistration = null;
+
+function urlB64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
   
-  // navigator.serviceWorker.register('service-worker.js').then(function(serviceWorkerRegistration) {
-  //   // Use the PushManager to get the user's subscription to the push service.
-  //   console.log(serviceWorkerRegistration);
-  //   serviceWorkerRegistration.pushManager.getSubscription()
-  //     .then(function(subscription) {
-  //       // If a subscription was found, return it.
-  //       if (subscription) {
-  //         return subscription;
-  //       }
-  //
-  //       // Otherwise, subscribe the user (userVisibleOnly allows to specify
-  //       // that we don't plan to send notifications that don't have a
-  //       // visible effect for the user).
-  //       return serviceWorkerRegistration.pushManager.subscribe({
-  //         userVisibleOnly: true
-  //       });
-  //     })
-  //     .then(function(subscription) {
-  //       // Here you can use the subscription.
-  //     });
-  //
-  // });
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
   
-  navigator.serviceWorker.register('service-worker.js')
-
-
-    .then(function(registration) {
-      console.log('service worker installed');
-
-      return registration.pushManager.getSubscription()
-        .then(function(subscription) {
-
-          if (subscription) {
-            console.log('subscription found');
-            console.log(subscription);
-            return subscription;
-
-          }
-          console.log("no subscription found");
-
-          return registration.pushManager.subscribe({ userVisibleOnly: true });
-        });
-    })
-    
-    .then(function(subscription) {
-      var rawKey = subscription.getKey ? subscription.getKey('p256dh') : '';
-      key = rawKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(rawKey))) : '';
-      var rawAuthSecret = subscription.getKey ? subscription.getKey('auth') : '';
-      authSecret = rawAuthSecret ? btoa(String.fromCharCode.apply(null, new Uint8Array(rawAuthSecret))) : '';
-      endpoint = subscription.endpoint;
-      fetch('http://localhost:3000/register', {
-        method: 'post',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          endpoint: subscription.endpoint,
-          key: key,
-          authSecret: authSecret
-        })
-      });
-    })
-    
-    .catch(function(err){console.log('Error', err)});
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }
 
-function testPush() {
-  
-  var obj = {
-    method: 'post',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      endpoint: endpoint,
-      key: key,
-      authSecret: authSecret,
-      payload: "Vote Yes",
-      delay: 3,
-      ttl: 10
-    })
-  };
-  console.log(JSON.stringify(obj));
-  
-  fetch('http://localhost:3000/sendNotification', obj).then(function(response){
-    console.log(response);
+function initialiseUI() {
+  pushButton.addEventListener('click', function() {
+    pushButton.disabled = true;
+    if (isSubscribed) {
+      // TODO: Unsubscribe user
+    } else {
+      subscribeUser();
+    }
   });
+  
+  // Set the initial subscription value
+  swRegistration.pushManager.getSubscription()
+    .then(function(subscription) {
+      isSubscribed = !(subscription === null);
+      
+      updateSubscriptionOnServer(subscription);
+      
+      if (isSubscribed) {
+        console.log('User IS subscribed.');
+      } else {
+        console.log('User is NOT subscribed.');
+      }
+      
+      updateBtn();
+    });
 }
+
+function updateBtn() {
+  if (Notification.permission === 'denied') {
+    pushButton.textContent = 'Push Messaging Blocked.';
+    pushButton.disabled = true;
+    updateSubscriptionOnServer(null);
+    return;
+  }
+  
+  if (isSubscribed) {
+    pushButton.textContent = 'Disable Push Messaging';
+  } else {
+    pushButton.textContent = 'Enable Push Messaging';
+  }
+  
+  pushButton.disabled = false;
+}
+
+function subscribeUser() {
+  const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+  swRegistration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: applicationServerKey
+  })
+    .then(function(subscription) {
+      console.log('User is subscribed:', subscription);
+      
+      updateSubscriptionOnServer(subscription);
+      
+      isSubscribed = true;
+      
+      updateBtn();
+    })
+    .catch(function(err) {
+      console.log('Failed to subscribe the user: ', err);
+      updateBtn();
+    });
+}
+
+function updateSubscriptionOnServer(subscription) {
+  // TODO: Send subscription to application server
+  
+  console.log(JSON.stringify(subscription));
+}
+
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  console.log('Service Worker and Push is supported');
+
+  navigator.serviceWorker.register('../service-worker.js')
+    .then(function(swReg) {
+      console.log('Service Worker is registered', swReg);
+
+      swRegistration = swReg;
+    })
+    .catch(function(error) {
+      console.error('Service Worker Error', error);
+    });
+} else {
+  console.warn('Push messaging is not supported');
+  pushButton.textContent = 'Push Not Supported';
+}
+
+navigator.serviceWorker.register('../service-worker.js')
+  .then(function(swReg) {
+    console.log('Service Worker is registered', swReg);
+
+    swRegistration = swReg;
+    initialiseUI();
+  });

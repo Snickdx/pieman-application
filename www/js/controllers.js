@@ -210,7 +210,7 @@ angular.module('app.controllers', [])
 
   })
 
-  .controller('menuCtrl', function(FB, $scope, ionicToast, $location, NotifyService){
+  .controller('menuCtrl', function(FB, $scope, ionicToast, $location){
       $scope.username = null;
       $scope.$on('loggedIn', function(event) {
         console.log('logged In!');
@@ -222,14 +222,7 @@ angular.module('app.controllers', [])
         ionicToast.show('Logged Out!', 'bottom', false, 4000);
         $scope.username = null;
       };
-      
-      $scope.notify = function(){
-        NotifyService.show({
-          title:'Test Title',
-          body:'Test Notification Body',
-          icon:'img/pieman-192.png'
-        });
-      };
+    
       
       $scope.anonLogin = function(){
         var authData = FB.anonLogin();

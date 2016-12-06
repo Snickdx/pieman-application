@@ -81,7 +81,7 @@
     <script src="js/routes.js"></script>
     <script src="js/services.js"></script>
     <script src="js/directives.js"></script>
-    <script src="js/main.js"></script>
+
 
 
     <!-- Only required for Tab projects w/ pages in multiple tabs
@@ -109,15 +109,16 @@
               <h3 ng-if="username == null">Not logged In{{username}}</h3>
               <h3 ng-if="username != null">Logged in as {{username}}</h3>
                 <ion-list id="menu-list6" class=" manual-list-fullwidth " data-componentid="list6">
-                    <button onclick="testPush()">Test Push</button>
                     <ion-item id="menu-list-item13" ui-sref="tabsController.pieManStatus" menu-close="" class="  " data-componentid="list-item13">Home</ion-item>
-                    <ion-item ng-if="username == null" id="menu-list-item16" ui-sref="login" menu-close="" class="  " data-componentid="list-item16">Log In/Sign Up</ion-item>
-                    <ion-item ng-if="username != null" id="menu-list-item14" ng-click="logout()" class="  " data-componentid="list-item14">Log out</ion-item>
-                    <ion-item ng-if="username == null" id="menu-list-item15" ng-click="anonLogin()" class="  " data-componentid="list-item14">Anonymous Login</ion-item>
+                  <ion-item ng-if="username == null" id="menu-list-item16" ui-sref="login" menu-close="" class="  " data-componentid="list-item16">Log In/Sign Up</ion-item>
+                  <ion-item ng-if="username != null" id="menu-list-item14" ng-click="logout()" class="  " data-componentid="list-item14">Log out</ion-item>
+                  <ion-item ng-if="username == null" id="menu-list-item15" ng-click="anonLogin()" class="  " data-componentid="list-item14">Anonymous Login</ion-item>
                 </ion-list>
+                <button disabled class="js-push-btn button button-raised button-stable ink-dark">Enable Push Messaging</button>
             </ion-content>
         </ion-side-menu>
     </ion-side-menus>
 </div>
+  <script src="js/main.js"></script>
   </body>
 </html>

@@ -39,27 +39,36 @@ app.post('/api/send-push-msg', function(req, res){
     TTL: 60 * 60
   };
   
-  const mysub = {"endpoint":"https://fcm.googleapis.com/fcm/send/d5Y9juXfYgE:APA91bF0wlPtbYz1HRGVnz_zBDrrGtM_8SbjKiXGzubOsrkYqD4_FWciH7I9kmWkIuDdBxSC3CjUhW_VUCbm3tZGuqx6XpFHAigHkjVBPjhznmVUzVlXi8f6nKMZtJI42VRxXeKxjAAK","keys":{"p256dh":"BPG1tk3FD4uXZsvFvgPcf2xSv_myNs8x4KrUlIeDwMDd0HPR4wHy3NOAO6bhPCs87dk5UB6IQ_82jccMR8-0CgY=","auth":"7Jwp0K8j2XL89Q_zhhePtw=="}};
+  const mysubs = [
+    {"endpoint":"https://fcm.googleapis.com/fcm/send/d5Y9juXfYgE:APA91bF0wlPtbYz1HRGVnz_zBDrrGtM_8SbjKiXGzubOsrkYqD4_FWciH7I9kmWkIuDdBxSC3CjUhW_VUCbm3tZGuqx6XpFHAigHkjVBPjhznmVUzVlXi8f6nKMZtJI42VRxXeKxjAAK","keys":{"p256dh":"BPG1tk3FD4uXZsvFvgPcf2xSv_myNs8x4KrUlIeDwMDd0HPR4wHy3NOAO6bhPCs87dk5UB6IQ_82jccMR8-0CgY=","auth":"7Jwp0K8j2XL89Q_zhhePtw=="}},
+    {"endpoint":"https://fcm.googleapis.com/fcm/send/eYg-_5L0Qrk:APA91bFdw6tUvHBIptJrmJgFGFh…UTc9S7T_Uv21w5eA4LKP-WMzwvx740hEUHLovWcK-6dm9Bbi6m_q6B9z7UnkL18PH_xuqo1cx2","keys":{"p256dh":"BCkGLo8tmgmaLWyLIBfNXS2m1tf88nOUoj3gwOHtsMXA8TFc5dljVJ8CVne23YNn6c6SVY99lp9lMzcmNhT0sKk=","auth":"iLtSB5jDmcSTeXNlyMzZrA=="}}
+    ];
   
-  
-  webpush.sendNotification(
-    mysub,
-    req.body.data,
-    options
-  )
-  .then(function(){
-    res.status(200).send({success: true});
-  })
-  .catch(function(err){
-    if (err.statusCode) {
-      res.status(err.statusCode).send(err.body);
-    } else {
-      res.status(400).send(err.message);
-    }
+  mysubs.forEach(function(sub){
+    webpush.sendNotification(
+      sub,
+      req.body.data,
+      options
+    )
+      .then(function(){
+        res.status(200).send({success: true});
+      })
+      .catch(function(err){
+        if (err.statusCode) {
+          res.status(err.statusCode).send(err.body);
+        } else {
+          res.status(400).send(err.message);
+        }
+      });
   });
+  
 });
 
-app.use('/', express.static('static'));
+app.get('/', function (req, res) {
+  res.send('HI :)');
+});
+
+//app.use('/', express.static('static'));
 
 // Start the server
 const server = app.listen(3000, function(){
