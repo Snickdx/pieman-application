@@ -18,27 +18,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const webpush = require('web-push');
-
 const app = express();
+const cors = require('cors');
+
+app.use(cors());
+app.options('*', cors());
 
 // Parse JSON body
 app.use(bodyParser.json());
 
 app.post('/api/send-push-msg', function(req, res){
+
   const options = {
     vapidDetails: {
       subject: 'https://developers.google.com/web/fundamentals/',
-      publicKey: req.body.applicationKeys.public,
-      privateKey: req.body.applicationKeys.private
+      publicKey: 'BAd4mNLFMoE4g_m2g2ZSSbEljvi_ROkFMwWgIVwSRp7IpoFUSu0pAqFFw-BunnFOzpvWkKvF10CrT1oT91IOALA',
+      privateKey: 'K1DCCq4FyQNU11TfMkXz1LlwiU2cCageTzP5JNTKS-k'
     },
     // 1 hour in seconds.
     TTL: 60 * 60
   };
-
-  console.log(req.body);
-
+  
+  const mysub = {"endpoint":"https://fcm.googleapis.com/fcm/send/d5Y9juXfYgE:APA91bF0wlPtbYz1HRGVnz_zBDrrGtM_8SbjKiXGzubOsrkYqD4_FWciH7I9kmWkIuDdBxSC3CjUhW_VUCbm3tZGuqx6XpFHAigHkjVBPjhznmVUzVlXi8f6nKMZtJI42VRxXeKxjAAK","keys":{"p256dh":"BPG1tk3FD4uXZsvFvgPcf2xSv_myNs8x4KrUlIeDwMDd0HPR4wHy3NOAO6bhPCs87dk5UB6IQ_82jccMR8-0CgY=","auth":"7Jwp0K8j2XL89Q_zhhePtw=="}};
+  
+  
   webpush.sendNotification(
-    req.body.subscription,
+    mysub,
     req.body.data,
     options
   )

@@ -21,8 +21,10 @@ function sendPushMessage() {
   const subscriptionTextArea = document.querySelector('#push-subscription');
   const textToSendTextArea = document.querySelector('#push-data');
 
-  const subscriptionString = subscriptionTextArea.value.trim();
+  // const subscriptionString = subscriptionTextArea.value.trim();
   const dataString = textToSendTextArea.value;
+  const subscriptionString = `{"endpoint":"https://fcm.googleapis.com/fcm/send/d5Y9juXfYgE:APA91bF0wlPtbYz1HRGVnz_zBDrrGtM_8SbjKiXGzubOsrkYqD4_FWciH7I9kmWkIuDdBxSC3CjUhW_VUCbm3tZGuqx6XpFHAigHkjVBPjhznmVUzVlXi8f6nKMZtJI42VRxXeKxjAAK","keys":{"p256dh":"BPG1tk3FD4uXZsvFvgPcf2xSv_myNs8x4KrUlIeDwMDd0HPR4wHy3NOAO6bhPCs87dk5UB6IQ_82jccMR8-0CgY=","auth":"7Jwp0K8j2XL89Q_zhhePtw=="}}`;
+  console.log(subscriptionString);
 
   saveDetails({
     subscription: subscriptionString,
@@ -46,20 +48,25 @@ function sendPushMessage() {
 
   const publicElement = document.querySelector('.js-public-key');
   const privateElement = document.querySelector('.js-private-key');
-
-  return fetch('/api/send-push-msg', {
+  
+  let request =  JSON.stringify({
+    subscription: subscriptionObject,
+    data: dataString,
+    applicationKeys: {
+      public: publicElement.textContent,
+      private: privateElement.textContent,
+    }
+  });
+  
+  // console.log(request);
+  
+  return fetch('http://localhost:3000/api/send-push-msg', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      subscription: subscriptionObject,
-      data: dataString,
-      applicationKeys: {
-        public: publicElement.textContent,
-        private: privateElement.textContent,
-      }
-    })
+    body: request
+    
   })
   .then((response) => {
     if (response.status !== 200) {

@@ -21,7 +21,7 @@
 
 'use strict';
 
-const applicationServerPublicKey = 'BLp_qjCMBa7KjXcXBK_K6eP2LWcxiUl3ug0YjZynauN6mr-SAnT1YvJUDej5dssVvbleEt2VsK44eFxXjgLOG2c';
+const applicationServerPublicKey = 'BAd4mNLFMoE4g_m2g2ZSSbEljvi_ROkFMwWgIVwSRp7IpoFUSu0pAqFFw-BunnFOzpvWkKvF10CrT1oT91IOALA';
 
 const pushButton = document.querySelector('.js-push-btn');
 
@@ -112,8 +112,7 @@ function updateSubscriptionOnServer(subscription) {
 	// TODO: Send subscription to application server
 	
 	const subscriptionJson = document.querySelector('.js-subscription-json');
-	const subscriptionDetails =
-		document.querySelector('.js-subscription-details');
+	const subscriptionDetails = document.querySelector('.js-subscription-details');
 	
 	if (subscription) {
 		subscriptionJson.textContent = JSON.stringify(subscription);
@@ -146,4 +145,4 @@ navigator.serviceWorker.register('sw.js')
 		
 		swRegistration = swReg;
 		initialiseUI();
-	})
+	});
