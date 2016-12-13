@@ -10,6 +10,7 @@
     "firebase": "~3.2.1",
     "ionic-toast": "~0.4.1",
     "moment": "~2.14.1",
-    "angular-web-notification": "^1.0.21"
+    "angular-web-notification": "^1.0.21",
+    "ngstorage": "^0.3.11"
   }
 }
