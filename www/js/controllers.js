@@ -7,7 +7,6 @@ angular.module('app.controllers', [])
     $scope.options = {
       chart: {
         type: 'pieChart',
-        height: 280,
         x: function(d){return d.key;},
         y: function(d){return d.y;},
         showLabels: true,
@@ -72,7 +71,13 @@ angular.module('app.controllers', [])
         $location.path('/reportDetail');
       }
     };
-
+  
+    $scope.gcmSend = function(sub) {
+      // send token to server and save it
+      console.log(sub.subscriptionId);
+    };
+  
+  
   })
 
   .controller('reportFeedCtrl', function($scope, FB) {
@@ -212,6 +217,7 @@ angular.module('app.controllers', [])
 
   .controller('menuCtrl', function(FB, $scope, ionicToast, $location){
       $scope.username = null;
+    
       $scope.$on('loggedIn', function(event) {
         console.log('logged In!');
         $scope.username = FB.userData.username;
@@ -222,7 +228,6 @@ angular.module('app.controllers', [])
         ionicToast.show('Logged Out!', 'bottom', false, 4000);
         $scope.username = null;
       };
-    
       
       $scope.anonLogin = function(){
         var authData = FB.anonLogin();

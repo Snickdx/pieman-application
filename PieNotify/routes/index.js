@@ -24,9 +24,10 @@ router.use(function(req, res, next) {
 function sendNotification(message, receiver, callback){
   let data = {
     "notification": {
-      "title": "Notipy",
+      "title": "Notipy Notification",
       "body": message,
-      "click_action" : "https://pieman.online"
+      "click_action" : "https://pieman.online",
+      "icon": "http://pieman.online/img/pieman-128.png"
     },
     "to" : receiver
   };
@@ -82,4 +83,3 @@ router.get('/getSubs', function(req, res) {
 
 
 module.exports = router;
-

@@ -2,90 +2,106 @@ angular.module('app.services', [])
   
   
   .factory('FB', ['$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', '$rootScope', '$localStorage', function($http, $firebaseAuth, $firebaseArray, $firebaseObject, $q, $rootScope, $localStorage){
+    
     const config = {
       apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
       authDomain: "pieman-d47da.firebaseapp.com",
       databaseURL: "https://pieman-d47da.firebaseio.com",
       storageBucket: "pieman-d47da.appspot.com",
       messagingSenderId: "371107496995",
-      // messagingSenderId: "103953800507",
     };
-    
     
     firebase.initializeApp(config);
   
     const msg = firebase.messaging();
   
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(function(registration){
-          console.log('service worker installed');
-          msg.useServiceWorker(registration);
-        })
-        .catch(function(err){console.log('Error', err)});
-    }
-    
     const auth = $firebaseAuth();
-    
+  
     const db = firebase.database();
     
     const obj = {};
     
+    //**********************************Service Worker****************************************
+    
+    obj.registerSW = () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(function(registration){
+            console.log('service worker installed');
+            msg.useServiceWorker(registration);
+          })
+          .catch(function(err){console.log('Error', err)});
+      }
+    };
+    
+    //***********************************Cloud Messaging***************************************
+  
     obj.deleteToken = () => {
       obj.set('/subscriptions/'+$localStorage.tokenKey, "null");
       delete $localStorage.savedToken;
       delete $localStorage.tokenKey;
     };
-    
+  
     obj.saveToken = token => {
       $localStorage.savedToken = token;
       let ref = obj.pushKey('/registrations');
       $localStorage.tokenKey = ref.key;
       ref.set(token);
-      console.log(ref.key);
+      console.log("Messaging token saved at "+ref.key);
     };
-    
+  
     obj.loadToken = () =>{
       return $localStorage.savedToken
     };
-    
-    
-    obj.onMessage = () => {msg.onMessage(function(payload) {
-      console.log("Message received. ", payload);
-      // ...
-    })};
-    
-    obj.onTokenFresh = () => {msg.onTokenRefresh(function() {
-      messaging.getToken()
-        .then(function(refreshedToken) {
-          obj.deleteToken(refreshedToken);
-          obj.saveToken(refreshedToken);
+  
+    obj.isMsgEnabled = () => {
+      return  $localStorage.savedToken != undefined;
+    };
+  
+    obj.onMessage = () => {
+      msg.onMessage(function(payload) {
+        console.log("Message received. ", payload);
+      })
+    };
+  
+    obj.onTokenFresh = () => {
+      msg.onTokenRefresh(() => {
+        msg.getToken()
+          .then(function(refreshedToken) {
+            obj.deleteToken();
+            obj.saveToken(refreshedToken);
+          })
+          .catch(function(err) {
+            console.log('Unable to retrieve refreshed token ', err);
+          });
+      });
+    };
+  
+    obj.enableMessaging = () => {
+      console.log('enabled bro');
+      msg.requestPermission()
+        .then(function() {
+          console.log('Notification permission granted.');
+          obj.enableMessaging(token => {
+            obj.saveToken(token);
+          });
         })
         .catch(function(err) {
-          console.log('Unable to retrieve refreshed token ', err);
-        });
-    });};
-    
-    obj.enableMessaging = () => {msg.requestPermission()
-      .then(function() {
-        console.log('Notification permission granted.');
-        return msg.getToken();
-      })
-      .catch(function(err) {
-        console.log('Unable to get permission to notify.', err);
-      })};
-    
-    obj.getToken = function(){
-        // Get Instance ID token. Initially this makes a network call, once retrieved
-        // subsequent calls to getToken will return from cache.
+          console.log('Unable to get permission to notify.', err);
+        })
+    };
+  
+    obj.checkMessaging = () => {
+      return $localStorage.savedToken != undefined;
+    };
+  
+    obj.getToken = callback =>{
       msg.getToken()
         .then(function(currentToken) {
           if (currentToken) {
-            if(obj.loadToken() == undefined)obj.saveToken(currentToken);
+            callback(currentToken);
           } else {
-            // Show permission request.
             console.log('No Instance ID token available. Request permission to generate one.');
-            // Show permission UI.
           }
         })
         .catch(function(err) {
@@ -93,10 +109,13 @@ angular.module('app.services', [])
         });
     };
     
+  
+    //***********************************Authentication****************************************
+  
     obj.auth = null;
-    
+  
     obj.userData = null;
-    
+  
     obj.login = function(email, password){
       return auth.$signInWithEmailAndPassword(email, password).then(function(authData) {
         console.log("Logged in as:", authData.uid);
@@ -113,19 +132,19 @@ angular.module('app.services', [])
         };
       });
     };
-    
+  
     obj.set = function(child, data){
       db.ref(child).set(data);
     };
-    
+  
     obj.get = function(child){
       return db.ref(child).once("value").then(function(snapshot){
         return snapshot.val();
       });
     };
-    
+  
     obj.isAuth = function(){};
-    
+  
     obj.signUp = function(username, email, password){
       return auth.$createUserWithEmailAndPassword(email, password).then(function(authData){
         obj.auth=authData;
@@ -147,7 +166,7 @@ angular.module('app.services', [])
         };
       });
     };
-    
+  
     obj.logout = function(){
       try {
         auth.$signOut();
@@ -158,6 +177,9 @@ angular.module('app.services', [])
         return $q.when({status: -1, error: error});
       }
     };
+    
+    
+    //************************************* Database ******************************************
     
     obj.getList = function(child){};
     
