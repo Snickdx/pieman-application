@@ -217,6 +217,9 @@ angular.module('app.controllers', [])
 
   .controller('menuCtrl', function(FB, $scope, ionicToast, $location){
       $scope.username = null;
+      
+      $scope.input = {notifications : FB.isMsgEnabled()};
+      
     
       $scope.$on('loggedIn', function(event) {
         console.log('logged In!');
@@ -227,6 +230,14 @@ angular.module('app.controllers', [])
         FB.logout();
         ionicToast.show('Logged Out!', 'bottom', false, 4000);
         $scope.username = null;
+      };
+      
+      $scope.toggleNotifications = () => {
+        if($scope.input.notifications){
+          FB.enableMessaging();
+        }else{
+          FB.deleteToken();
+        }
       };
       
       $scope.anonLogin = function(){

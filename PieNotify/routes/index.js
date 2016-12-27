@@ -9,7 +9,8 @@ var config = {
 	authDomain: "pieman-d47da.firebaseapp.com",
 	databaseURL: "https://pieman-d47da.firebaseio.com",
 	storageBucket: "pieman-d47da.appspot.com",
-	messagingSenderId: "371107496995"
+	messagingSenderId: "371107496995",
+  // messagingSenderId:"103953800507"
 };
 
 
@@ -47,28 +48,34 @@ function sendNotification(message, receiver, callback){
 
 function broadcast(message){
   firebase.database().ref('registrations').once('value', function(snapshot) {
-    let count = 0;
+    let count = 0, string;
     snapshot.forEach(function(childSnapshot) {
+      console.log('sending to '+childSnapshot.val());
       sendNotification(message, childSnapshot.val());
       count++;
     });
-    return message+' Sent to'+count+' subscribers!';
+    string  = message+' Sent to '+count+' subscribers!';
+    console.log(string);
+    return string;
   });
 }
 
 router.post('/sendNotification', function(req, res) {
   sendNotification(req.body.message, req.body.receiver, function(error, response, body){
-    res.send(body);
+    // res.send(error+"<br>"+JSON.stringify(response)+"<br>"+body);
+  res.send(response);
   });
 });
 
-router.get('/broadCast/:message', function(req, res){
-    res.send(broadcast(req.params.message));
+router.get('/broadcast/:message', function(req, res){
+  broadcast(req.params.message);
+  res.send('sent!');
+  // res.send(req.params.message);
 });
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	res.render('index', { title: 'Express' });
+	res.render('index', { title: 'Notipy' });
 });
 
 router.get('/getSubs', function(req, res) {

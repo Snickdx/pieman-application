@@ -8,7 +8,8 @@ angular.module('app.services', [])
       authDomain: "pieman-d47da.firebaseapp.com",
       databaseURL: "https://pieman-d47da.firebaseio.com",
       storageBucket: "pieman-d47da.appspot.com",
-      messagingSenderId: "371107496995",
+      messagingSenderId: "371107496995"
+      // messagingSenderId:"103953800507"
     };
     
     firebase.initializeApp(config);
@@ -58,14 +59,11 @@ angular.module('app.services', [])
       return  $localStorage.savedToken != undefined;
     };
   
-    obj.onMessage = () => {
-      msg.onMessage(function(payload) {
-        console.log("Message received. ", payload);
-      })
-    };
+    msg.onMessage(payload =>{
+      console.log("Message received. ", payload);
+    });
   
-    obj.onTokenFresh = () => {
-      msg.onTokenRefresh(() => {
+    msg.onTokenRefresh(() => {
         msg.getToken()
           .then(function(refreshedToken) {
             obj.deleteToken();
@@ -74,7 +72,12 @@ angular.module('app.services', [])
           .catch(function(err) {
             console.log('Unable to retrieve refreshed token ', err);
           });
-      });
+    });
+    
+    obj.getToken = (success, failure) => {
+      msg.getToken()
+        .then(token => {success(token)})
+        .catch(err => {failure(err)});
     };
   
     obj.enableMessaging = () => {
@@ -82,9 +85,14 @@ angular.module('app.services', [])
       msg.requestPermission()
         .then(function() {
           console.log('Notification permission granted.');
-          obj.enableMessaging(token => {
-            obj.saveToken(token);
-          });
+          obj.getToken(
+            token => {
+              obj.saveToken(token);
+            },
+            err => {
+              console.log('Error getting token ', err);
+            }
+          );
         })
         .catch(function(err) {
           console.log('Unable to get permission to notify.', err);
@@ -93,20 +101,6 @@ angular.module('app.services', [])
   
     obj.checkMessaging = () => {
       return $localStorage.savedToken != undefined;
-    };
-  
-    obj.getToken = callback =>{
-      msg.getToken()
-        .then(function(currentToken) {
-          if (currentToken) {
-            callback(currentToken);
-          } else {
-            console.log('No Instance ID token available. Request permission to generate one.');
-          }
-        })
-        .catch(function(err) {
-          console.log('An error occurred while retrieving token. ', err);
-        });
     };
     
   
