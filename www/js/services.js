@@ -1,7 +1,7 @@
 angular.module('app.services', [])
   
   
-  .factory('FB', ['$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', '$rootScope', '$localStorage', function($http, $firebaseAuth, $firebaseArray, $firebaseObject, $q, $rootScope, $localStorage){
+  .factory('FB', ['ionicToast', '$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', '$rootScope', '$localStorage', function(ionicToast, $http, $firebaseAuth, $firebaseArray, $firebaseObject, $q, $rootScope, $localStorage){
     
     const config = {
       apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
@@ -9,7 +9,6 @@ angular.module('app.services', [])
       databaseURL: "https://pieman-d47da.firebaseio.com",
       storageBucket: "pieman-d47da.appspot.com",
       messagingSenderId: "371107496995"
-      // messagingSenderId:"103953800507"
     };
     
     firebase.initializeApp(config);
@@ -38,7 +37,9 @@ angular.module('app.services', [])
     //***********************************Cloud Messaging***************************************
   
     obj.deleteToken = () => {
-      obj.set('/subscriptions/'+$localStorage.tokenKey, "null");
+      obj.set('/registrations/'+$localStorage.tokenKey, null);
+      console.log('Notifications Disabled!');
+      ionicToast.show('Notifications Disabled!', 'bottom', false, 4000);
       delete $localStorage.savedToken;
       delete $localStorage.tokenKey;
     };
@@ -50,26 +51,24 @@ angular.module('app.services', [])
       ref.set(token);
       console.log("Messaging token saved at "+ref.key);
     };
-  
-    obj.loadToken = () =>{
-      return $localStorage.savedToken
-    };
-  
+    
     obj.isMsgEnabled = () => {
       return  $localStorage.savedToken != undefined;
     };
   
     msg.onMessage(payload =>{
-      console.log("Message received. ", payload);
+      console.log("Message Received: ", payload);
+      ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
     });
   
     msg.onTokenRefresh(() => {
         msg.getToken()
-          .then(function(refreshedToken) {
+          .then(refreshedToken => {
+            console.log("Token Refreshed");
             obj.deleteToken();
             obj.saveToken(refreshedToken);
           })
-          .catch(function(err) {
+          .catch(err => {
             console.log('Unable to retrieve refreshed token ', err);
           });
     });
@@ -81,10 +80,10 @@ angular.module('app.services', [])
     };
   
     obj.enableMessaging = () => {
-      console.log('enabled bro');
       msg.requestPermission()
         .then(function() {
-          console.log('Notification permission granted.');
+          console.log('Notifications Enabled!');
+          ionicToast.show('Notifications Enabled!', 'bottom', false, 4000);
           obj.getToken(
             token => {
               obj.saveToken(token);
@@ -95,6 +94,7 @@ angular.module('app.services', [])
           );
         })
         .catch(function(err) {
+          ionicToast.show('Error enabling notifications', 'bottom', false, 4000);
           console.log('Unable to get permission to notify.', err);
         })
     };
@@ -225,7 +225,6 @@ angular.module('app.services', [])
     
     return obj;
   }]);
-  
 //   .factory('NotifyService', ['webNotification', function(webNotification){
 //
 //   let obj = {};

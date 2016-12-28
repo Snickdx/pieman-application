@@ -12,6 +12,7 @@
     "debug": "~2.2.0",
     "express": "~4.14.0",
     "express-cors": "0.0.3",
+    "fcm-push": "^1.1.2",
     "firebase": "^3.6.1",
     "jade": "~1.11.0",
     "morgan": "~1.7.0",
