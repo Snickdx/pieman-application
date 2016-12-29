@@ -1,11 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var firebase = require('firebase');
-var FCM = require('fcm-push');
+
 const request = require('request');
-
-
-var fcm = new FCM("AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA");
 
 // Initialize Firebase
 var config = {
@@ -26,31 +23,10 @@ router.use(function(req, res, next) {
   next();
 });
 
-function sendToTopic(topic, title, message, success, fail, collapseKey=topic){
-  
-  var payload = {
-    to: [topic],
-    collapse_key: collapseKey,
-    notification: {
-      title: title,
-      body: message
-    }
-  };
-  
-  fcm.send(payload)
-    .then(function(response){
-      console.log("Successfully sent with response: ", response);
-      success(response);
-    })
-    .catch(function(err){
-      console.log("Something has gone wrong!");
-      console.error(err);
-      fail(err);
-    })
-}
 
 function sendNotification(message, receiver, callback){
-  let data = {
+  var data = {
+    "priority":"high",
     "notification": {
       "title": "Notipy Notification",
       "body": message,
@@ -68,8 +44,8 @@ function sendNotification(message, receiver, callback){
       'Authorization':'key=AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA'
     },
     json: data
-  }, function(error, response, body){
-    if (callback != undefined) callback(error, response, body);
+  }, function(err, resp, body){
+    if (callback != undefined) callback(err, resp, body);
   })
 }
 
@@ -89,7 +65,7 @@ function addToTopic(registration, topic, callback){
 
 function broadcast(message){
   firebase.database().ref('registrations').once('value', function(snapshot) {
-    let count = 0, string;
+    var count = 0, string;
     snapshot.forEach(function(childSnapshot) {
       console.log('sending to '+childSnapshot.val());
       sendNotification(message, childSnapshot.val());
@@ -110,7 +86,7 @@ router.post('/sendNotification', function(req, res) {
 
 router.post('/register', function(req, res) {
   
-  firebase.database().ref(`registrations/${req.body.topic}`).push(req.body.subscriber);
+  // firebase.database().ref(`registrations/${req.body.topic}`).push(req.body.subscriber);
   addToTopic(req.body.subscriber, req.body.topic, (err, resp, body)=>{
     res.send(resp);
   });
@@ -118,11 +94,10 @@ router.post('/register', function(req, res) {
 });
 
 router.post('/notifyTopic', function(req, res) {
-  sendToTopic(req.body.topic, req.body.title, req.body.message, response => {
-    res.send(response);
-  }, err => {
-    res.send(err);
+  var response = sendNotification(req.body.message, "/topics/"+req.body.topic, (err, resp, body)=>{
+    return resp;
   });
+  res.send(response);
 });
 
 router.get('/broadcast/:message', function(req, res){

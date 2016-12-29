@@ -215,7 +215,7 @@ angular.module('app.controllers', [])
 
   })
 
-  .controller('menuCtrl', function(FB, $scope, ionicToast, $location){
+  .controller('menuCtrl', function(FB, $scope, ionicToast){
       $scope.username = null;
       
       $scope.input = {notifications : FB.isMsgEnabled()};
@@ -240,16 +240,8 @@ angular.module('app.controllers', [])
         }
       };
       
-      $scope.anonLogin = function(){
-        var authData = FB.anonLogin();
-        if(authData == null ){
-          ionicToast.show('Error Logging In, contact admin', 'bottom', false, 4000);
-        }else if(authData.uid == -1){
-          ionicToast.show('Error: '+authData.error.code+' '+authData.error.message, 'bottom', false, 4000);
-        }else{
-          ionicToast.show('Logged In!', 'bottom', false, 4000);
-          $location.path('/status');
-        }
-        
-      }
+      $scope.LoginWithFacebook = function(){
+        FB.FBlogin();
+      };
+    
   });

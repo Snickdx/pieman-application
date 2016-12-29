@@ -3,6 +3,14 @@ angular.module('app.services', [])
   
   .factory('FB', ['ionicToast', '$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', '$rootScope', '$localStorage', function(ionicToast, $http, $firebaseAuth, $firebaseArray, $firebaseObject, $q, $rootScope, $localStorage){
     
+    function successCallback(res){
+      console.log(res);
+    }
+    
+    function errorCallback(err){
+      console.log(err);
+    }
+    
     const config = {
       apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
       authDomain: "pieman-d47da.firebaseapp.com",
@@ -11,7 +19,10 @@ angular.module('app.services', [])
       messagingSenderId: "371107496995"
     };
     
+    const NotifyServer = "http://snickdx.me:3000";
+    
     firebase.initializeApp(config);
+    const fbAuth = new firebase.auth.FacebookAuthProvider();
   
     const msg = firebase.messaging();
   
@@ -37,7 +48,7 @@ angular.module('app.services', [])
     //***********************************Cloud Messaging***************************************
   
     obj.deleteToken = () => {
-      obj.set('/registrations/'+$localStorage.tokenKey, null);
+      obj.set('/registrations/general/'+$localStorage.tokenKey, null);
       console.log('Notifications Disabled!');
       ionicToast.show('Notifications Disabled!', 'bottom', false, 4000);
       delete $localStorage.savedToken;
@@ -46,9 +57,10 @@ angular.module('app.services', [])
   
     obj.saveToken = token => {
       $localStorage.savedToken = token;
-      let ref = obj.pushKey('/registrations');
+      let ref = obj.pushKey('/registrations/general');
       $localStorage.tokenKey = ref.key;
       ref.set(token);
+      $http.post(NotifyServer+"/register", {topic:"general", subscriber: token}).then(successCallback, errorCallback);
       console.log("Messaging token saved at "+ref.key);
     };
     
@@ -110,23 +122,6 @@ angular.module('app.services', [])
   
     obj.userData = null;
   
-    obj.login = function(email, password){
-      return auth.$signInWithEmailAndPassword(email, password).then(function(authData) {
-        console.log("Logged in as:", authData.uid);
-        obj.auth = authData;
-        return obj.get('users/'+authData.uid).then(function(data){
-          obj.userData = data;
-          return obj.userData;
-        });
-      }).catch(function(error) {
-        console.error("Authentication failed:", error);
-        return {
-          id: -1,
-          error: error
-        };
-      });
-    };
-  
     obj.set = function(child, data){
       db.ref(child).set(data);
     };
@@ -160,6 +155,64 @@ angular.module('app.services', [])
         };
       });
     };
+    
+    obj.FBlogin = function(){
+      firebase.auth().signInWithPopup(fbAuth).then(function(result) {
+        obj.auth = result.user;
+        console.log(result.user);
+        obj.signUp(result.credential.accessToken, user.displayName);
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        console.log(errorCode, errorMessage, email, credential);
+      });
+    };
+    
+    
+    // obj.FBlogin = function(){
+    //   console.log('in here');
+    //   firebase.auth().signInWithRedirect(fbAuth);
+    //
+    //   firebase.auth().getRedirectResult().then(function(result) {
+    //     if (result.credential) {
+    //       // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+    //       var token = result.credential.accessToken;
+    //
+    //     }
+    //     // if(obj.get('users/'+token) == null )obj.signUp(token, )
+    //     // The signed-in user info.
+    //     var user = result.user;
+    //     console.log(user);
+    //     obj.signUp(token, "lol");
+    //   }).catch(function(error) {
+    //     // Handle Errors here.
+    //     var errorCode = error.code;
+    //     var errorMessage = error.message;
+    //     // The email of the user's account used.
+    //     var email = error.email;
+    //     // The firebase.auth.AuthCredential type that was used.
+    //     var credential = error.credential;
+    //     console.log(errorCode, errorMessage, email, credential);
+    //   });
+    // };
+  
+    obj.signUp = function(token, username){
+        console.log('account created!');
+        obj.userData = {
+          downvotes: 0,
+          followers: 0,
+          id: token,
+          upvotes: 0,
+          username: username
+        };
+        obj.set('users/'+token, obj.userData);
+        return obj.userData;
+    };
   
     obj.logout = function(){
       try {
@@ -185,17 +238,13 @@ angular.module('app.services', [])
       return auth.$onAuthStateChanged(function(authData){
         obj.auth = authData;
         if(authData != null){
-          if(authData.isAnonymous){
-            obj.userData = {username:'Anonymous'};
-            $rootScope.$broadcast('loggedIn');
-            return obj.userData;
-          }else{
+        
             return obj.get('users/'+authData.uid).then(function(data){
               obj.userData = data;
               $rootScope.$broadcast('loggedIn');
               return obj.userData;
             });
-          }
+          
         }
         return authData;
         

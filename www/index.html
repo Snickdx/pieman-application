@@ -104,7 +104,7 @@
           <ion-item id="menu-list-item13" ui-sref="tabsController.pieManStatus" menu-close="" class="  " data-componentid="list-item13">Home</ion-item>
           <ion-item ng-if="username == null" id="menu-list-item16" ui-sref="login" menu-close="" class="  " data-componentid="list-item16">Log In/Sign Up</ion-item>
           <ion-item ng-if="username != null" id="menu-list-item14" ng-click="logout()" class="  " data-componentid="list-item14">Log out</ion-item>
-          <ion-item ng-if="username == null" id="menu-list-item15" ng-click="anonLogin()" class="  " data-componentid="list-item14">Anonymous Login</ion-item>
+          <ion-item ng-if="username == null" id="menu-list-item15" ng-click="LoginWithFacebook()" class="  " data-componentid="list-item14"> <i class="icon icon ion-social-facebook"></i> Login With Facebook</ion-item>
         </ion-list>
       </ion-content>
     </ion-side-menu>
