@@ -106,47 +106,6 @@ angular.module('app.controllers', [])
     }
   })
 
-  .controller('signupCtrl', function($scope, FB, ionicToast, $location, $rootScope) {
-    $scope.input={
-      username:"",
-      password:"",
-      email: ""
-    };
-
-    $scope.signUp = function(){
-      FB.signUp($scope.input.username, $scope.input.email, $scope.input.password).then(function(userData){
-        if(userData.id == -1){
-          ionicToast.show('Signup Failed: '+userData.error.code+' '+userData.error.message, 'bottom', false, 3000);
-        }else{
-          $location.path('/report');
-          ionicToast.show('Account Created!', 'bottom', false, 1000);
-          $rootScope.$broadcast('loggedIn');
-        }
-      });
-    };
-  })
-
-  .controller('loginCtrl', function($scope, FB, ionicToast, $location, $rootScope) {
-    $scope.input={
-      email:"",
-      password:""
-    };
-
-
-    $scope.login = function(){
-      FB.login($scope.input.email, $scope.input.password).then(function(userData){
-        if(userData.id == -1){
-          ionicToast.show('Login Failed: '+userData.error, 'bottom', false, 3000);
-        }else{
-          $location.path('/status');
-          ionicToast.show('Login Successful', 'bottom', false, 1000);
-          $rootScope.$broadcast('loggedIn');
-        }
-      });
-    };
-
-  })
-
   .controller('pieReportCtrl', function($scope, FB, ionicToast, $location) {
     $scope.input = {
       toggle:false,
@@ -222,6 +181,7 @@ angular.module('app.controllers', [])
       $scope.$on('loggedIn', function(event) {
         console.log('logged in');
         $scope.username = FB.getAuthData().displayName;
+        ionicToast.show('Logged in as '+$scope.username, 'bottom', false, 3000);
       });
       
       $scope.logout = function(){
@@ -232,7 +192,15 @@ angular.module('app.controllers', [])
       
       $scope.toggleNotifications = () => {
         if($scope.input.notifications){
-          FB.enableMessaging();
+          FB.enableMessaging(
+            ()=>{
+              console.log('notifications enabled');
+            },
+            ()=>{
+              console.log('notifications not supported');
+              $scope.input.notifications = false;
+            }
+          );
         }else{
           FB.deleteToken();
         }

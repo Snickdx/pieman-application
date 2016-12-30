@@ -43,19 +43,7 @@ angular.module('app.routes', [])
         templateUrl: 'templates/tabsController.html',
         abstract:true
       })
-
-      .state('signup', {
-        url: '/signup',
-        templateUrl: 'templates/signup.html',
-        controller: 'signupCtrl'
-      })
-
-      .state('login', {
-        url: '/login',
-        templateUrl: 'templates/login.html',
-        controller: 'loginCtrl'
-      })
-
+      
       .state('pieReport', {
         url: '/reportDetail',
         templateUrl: 'templates/pieReport.html',

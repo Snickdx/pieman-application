@@ -6,6 +6,8 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
+var textTransformation = require('gulp-text-simple');
+var inject = require('gulp-inject-string');
 
 var paths = {
   sass: ['./scss/**/*.scss']
@@ -59,4 +61,23 @@ gulp.task('generate-service-worker', function(callback) {
     staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,jpg,gif,svg,eot,ttf,woff}'],
     stripPrefix: rootDir
   }, callback);
+});
+
+gulp.task('build', ['generate-service-worker'], function(){
+  gulp.src('PWA/service-worker.js').pipe(
+    (
+      textTransformation(
+        str=>{
+          gulp.src('www/service-worker.js')
+            .pipe(inject.append('\n'+str))
+            .pipe(gulp.dest('www'));
+          return str;
+        }
+      )
+    )()
+  )
+});
+
+gulp.task('deploy', ['build'], function(){
+  sh.exec('firebase deploy');
 });

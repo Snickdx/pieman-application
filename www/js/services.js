@@ -22,11 +22,11 @@ angular.module('app.services', [])
     const NotifyServer = "http://snickdx.me:3000";
     
     firebase.initializeApp(config);
-  
+    
     const msg = firebase.messaging();
-  
+    
     const auth = $firebaseAuth();
-  
+    
     const db = firebase.database();
     
     const obj = {};
@@ -45,7 +45,7 @@ angular.module('app.services', [])
     };
     
     //***********************************Cloud Messaging***************************************
-  
+    
     obj.deleteToken = () => {
       obj.set('/registrations/general/'+$localStorage.tokenKey, null);
       console.log('Notifications Disabled!');
@@ -53,26 +53,41 @@ angular.module('app.services', [])
       delete $localStorage.savedToken;
       delete $localStorage.tokenKey;
     };
-  
+    
     obj.saveToken = token => {
       $localStorage.savedToken = token;
       let ref = obj.pushKey('/registrations/general');
       $localStorage.tokenKey = ref.key;
       ref.set(token);
-      $http.post(NotifyServer+"/register", {topic:"general", subscriber: token}).then(successCallback, errorCallback);
+
+      $http({
+        method: 'POST',
+        url: `https://iid.googleapis.com/iid/v1/${token}/rel/topics/general`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':'key=AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA'
+        }
+      },
+      response => {
+        console.log('Registered for general notifications', response);
+      },
+      err => {
+        console.log(err);
+      });
+      
       console.log("Messaging token saved at "+ref.key);
     };
-    
-    obj.isMsgEnabled = () => {
-      return  $localStorage.savedToken != undefined;
-    };
-  
-    msg.onMessage(payload =>{
-      console.log("Message Received: ", payload);
-      ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
-    });
-  
-    msg.onTokenRefresh(() => {
+      
+      obj.isMsgEnabled = () => {
+        return  $localStorage.savedToken != undefined;
+      };
+      
+      msg.onMessage(payload =>{
+        console.log("Message Received: ", payload);
+        ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
+      });
+      
+      msg.onTokenRefresh(() => {
         msg.getToken()
           .then(refreshedToken => {
             console.log("Token Refreshed");
@@ -82,174 +97,145 @@ angular.module('app.services', [])
           .catch(err => {
             console.log('Unable to retrieve refreshed token ', err);
           });
-    });
-    
-    obj.getToken = (success, failure) => {
-      msg.getToken()
-        .then(token => {success(token)})
-        .catch(err => {failure(err)});
-    };
-  
-    obj.enableMessaging = () => {
-      msg.requestPermission()
-        .then(function() {
-          console.log('Notifications Enabled!');
-          ionicToast.show('Notifications Enabled!', 'bottom', false, 4000);
-          obj.getToken(
-            token => {
-              obj.saveToken(token);
-            },
-            err => {
-              console.log('Error getting token ', err);
+      });
+      
+      obj.getToken = (success, failure) => {
+        msg.getToken()
+          .then(token => {success(token)})
+          .catch(err => {failure(err)});
+      };
+      
+      obj.enableMessaging = (success, failure) => {
+        msg.requestPermission()
+          .then(()=>{
+            console.log('Notifications supported');
+            ionicToast.show('Notifications Enabled!', 'bottom', false, 4000);
+            obj.getToken(
+              token => {
+                obj.saveToken(token);
+              },
+              err => {
+                console.log('Error getting token ', err);
+                ionicToast.show('Notification Error', 'bottom', false, 4000);
+              }
+            );
+            success();
+          })
+          .catch(function(err) {
+            ionicToast.show('Notifications only available on Chrome Firefox or Opera!', 'bottom', false, 4000);
+            console.log('Unable to get permission to notify.', err);
+            failure();
+          })
+      };
+      
+      obj.checkMessaging = () => {
+        return $localStorage.savedToken != undefined;
+      };
+      
+      
+      //***********************************Authentication****************************************
+      
+      obj.auth = null;
+      
+      obj.userData = null;
+      
+      obj.isAuth = function(){};
+      
+      obj.getAuthData = function(){
+        return auth.$getAuth();
+      };
+      
+      obj.getUserName = function(){
+        obj.userData = JSON.parse($localStorage.userData);
+        console.log(obj.userData);
+        return $localStorage.userData.username;
+      };
+      
+      obj.FBlogin = function(){
+        auth.$signInWithRedirect(new firebase.auth.FacebookAuthProvider()).then(function(result) {
+          obj.auth = result.user;
+          obj.get('users/'+result.user.uid).then(
+            val => {
+              if(val == null){
+                obj.userData ={
+                  id: result.user.uid,
+                  downvotes: 0,
+                  followers: 0,
+                  upvotes: 0,
+                  username: result.user.displayName
+                };
+                obj.set('users/'+obj.userData.uid, obj.userData);
+              }else{
+                obj.userData = val;
+              }
             }
           );
-        })
-        .catch(function(err) {
-          ionicToast.show('Error enabling notifications', 'bottom', false, 4000);
-          console.log('Unable to get permission to notify.', err);
-        })
-    };
-  
-    obj.checkMessaging = () => {
-      return $localStorage.savedToken != undefined;
-    };
+        });
+      };
     
-  
-    //***********************************Authentication****************************************
-  
-    obj.auth = null;
-    
-    obj.userData = null;
-  
-    obj.isAuth = function(){};
-    
-    obj.getAuthData = function(){
-      return auth.$getAuth();
-    };
-    
-    obj.getUserName = function(){
-      obj.userData = JSON.parse($localStorage.userData);
-      console.log(obj.userData);
-      return $localStorage.userData.username;
-    };
-    
-    obj.FBlogin = function(){
-      auth.$signInWithPopup(new firebase.auth.FacebookAuthProvider()).then(function(result) {
-        obj.auth = result.user;
-        obj.get('users/'+result.user.uid).then(
-          val => {
-            if(val == null){
-              obj.userData ={
-                id: result.user.uid,
-                downvotes: 0,
-                followers: 0,
-                upvotes: 0,
-                username: result.user.displayName
-              };
-              obj.set('users/'+obj.userData.uid, obj.userData);
-            }else{
-              obj.userData = val;
-            }
+      obj.checkAuth = function(){
+        return auth.$onAuthStateChanged(function(authData){
+          obj.auth = authData;
+          if(authData != null){
+            
+            return obj.get('users/'+authData.uid).then(function(data){
+              obj.userData = data;
+              $rootScope.$broadcast('loggedIn');
+              return obj.userData;
+            });
+            
           }
-        );
-      });
-    };
-    
-    // obj.FBlogin = function(){
-    //   console.log('in here');
-    //   firebase.auth().signInWithRedirect(fbAuth);
-    //
-    //   firebase.auth().getRedirectResult().then(function(result) {
-    //     if (result.credential) {
-    //       // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-    //       var token = result.credential.accessToken;
-    //
-    //     }
-    //     // if(obj.get('users/'+token) == null )obj.signUp(token, )
-    //     // The signed-in user info.
-    //     var user = result.user;
-    //     console.log(user);
-    //     obj.signUp(token, "lol");
-    //   }).catch(function(error) {
-    //     // Handle Errors here.
-    //     var errorCode = error.code;
-    //     var errorMessage = error.message;
-    //     // The email of the user's account used.
-    //     var email = error.email;
-    //     // The firebase.auth.AuthCredential type that was used.
-    //     var credential = error.credential;
-    //     console.log(errorCode, errorMessage, email, credential);
-    //   });
-    // };
-    obj.checkAuth = function(){
-      return auth.$onAuthStateChanged(function(authData){
-        obj.auth = authData;
-        if(authData != null){
-        
-          return obj.get('users/'+authData.uid).then(function(data){
-            obj.userData = data;
-            $rootScope.$broadcast('loggedIn');
-            return obj.userData;
-          });
-        
+          return authData;
+        })
+      };
+      
+      obj.logout = function(){
+        try {
+          auth.$signOut();
+          obj.auth = null;
+          return $q.when({ status : 0});
         }
-        return authData;
-      })
-    };
-  
-    obj.logout = function(){
-      try {
-        auth.$signOut();
-        obj.auth = null;
-        return $q.when({ status : 0});
-      }
-      catch(error) {
-        return $q.when({status: -1, error: error});
-      }
-    };
+        catch(error) {
+          return $q.when({status: -1, error: error});
+        }
+      };
+      
+      
+      //************************************* Database ******************************************
+      
+      obj.set = function(child, data){
+        db.ref(child).set(data);
+      };
+      
+      obj.get = function(child){
+        return db.ref(child).once("value").then(function(snapshot){
+          return snapshot.val();
+        });
+      };
+      
+      obj.getList = function(child){};
+      
+      obj.getOrderedbyLast = function(child, prop, num){
+        return db.ref(child).orderByChild(prop).limitToLast(num);
+      };
     
-    
-    //************************************* Database ******************************************
-  
-    obj.set = function(child, data){
-      db.ref(child).set(data);
-    };
-  
-    obj.get = function(child){
-      return db.ref(child).once("value").then(function(snapshot){
-        return snapshot.val();
-      });
-    };
-    
-    obj.getList = function(child){};
-    
-    obj.getOrderedbyLast = function(child, prop, num){
-      return db.ref(child).orderByChild(prop).limitToLast(num);
-    };
-    
-    obj.anonLogin = function(){
-      auth.$signInAnonymously().catch(function(error) {
-        return {uid: -1, error:error};
-      });
-      return obj.checkAuth();
-    };
-    
-    obj.pushKey = (child) => {
-      return db.ref(child).push();
-    };
-    
-    obj.push = function(child, data){
-      return db.ref(child).push().set(data);
-    };
-    
-    obj.getCollection = function(child){
-      return $firebaseArray(db.ref(child));
-    };
-    
-    obj.getObject = function(){};
-    
-    return obj;
-  }]);
+      
+      obj.pushKey = (child) => {
+        return db.ref(child).push();
+      };
+      
+      obj.push = function(child, data){
+        return db.ref(child).push().set(data);
+      };
+      
+      obj.getCollection = function(child){
+        return $firebaseArray(db.ref(child));
+      };
+      
+      obj.getObject = function(){};
+      
+      return obj;
+    }]);
 //   .factory('NotifyService', ['webNotification', function(webNotification){
 //
 //   let obj = {};
