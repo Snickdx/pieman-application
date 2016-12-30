@@ -22,7 +22,6 @@ angular.module('app.services', [])
     const NotifyServer = "http://snickdx.me:3000";
     
     firebase.initializeApp(config);
-    const fbAuth = new firebase.auth.FacebookAuthProvider();
   
     const msg = firebase.messaging();
   
@@ -119,60 +118,42 @@ angular.module('app.services', [])
     //***********************************Authentication****************************************
   
     obj.auth = null;
-  
+    
     obj.userData = null;
   
-    obj.set = function(child, data){
-      db.ref(child).set(data);
-    };
-  
-    obj.get = function(child){
-      return db.ref(child).once("value").then(function(snapshot){
-        return snapshot.val();
-      });
-    };
-  
     obj.isAuth = function(){};
-  
-    obj.signUp = function(username, email, password){
-      return auth.$createUserWithEmailAndPassword(email, password).then(function(authData){
-        obj.auth=authData;
-        console.log('account created!');
-        obj.userData = {
-          downvotes: 0,
-          email: email,
-          followers: 0,
-          id: authData.uid,
-          upvotes: 0,
-          username: username
-        };
-        obj.set('users/'+authData.uid, obj.userData);
-        return obj.userData;
-      }).catch(function(error) {
-        return {
-          uid: -1,
-          error: error
-        };
-      });
+    
+    obj.getAuthData = function(){
+      return auth.$getAuth();
+    };
+    
+    obj.getUserName = function(){
+      obj.userData = JSON.parse($localStorage.userData);
+      console.log(obj.userData);
+      return $localStorage.userData.username;
     };
     
     obj.FBlogin = function(){
-      firebase.auth().signInWithPopup(fbAuth).then(function(result) {
+      auth.$signInWithPopup(new firebase.auth.FacebookAuthProvider()).then(function(result) {
         obj.auth = result.user;
-        console.log(result.user);
-        obj.signUp(result.credential.accessToken, user.displayName);
-      }).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // The email of the user's account used.
-        var email = error.email;
-        // The firebase.auth.AuthCredential type that was used.
-        var credential = error.credential;
-        console.log(errorCode, errorMessage, email, credential);
+        obj.get('users/'+result.user.uid).then(
+          val => {
+            if(val == null){
+              obj.userData ={
+                id: result.user.uid,
+                downvotes: 0,
+                followers: 0,
+                upvotes: 0,
+                username: result.user.displayName
+              };
+              obj.set('users/'+obj.userData.uid, obj.userData);
+            }else{
+              obj.userData = val;
+            }
+          }
+        );
       });
     };
-    
     
     // obj.FBlogin = function(){
     //   console.log('in here');
@@ -200,18 +181,20 @@ angular.module('app.services', [])
     //     console.log(errorCode, errorMessage, email, credential);
     //   });
     // };
-  
-    obj.signUp = function(token, username){
-        console.log('account created!');
-        obj.userData = {
-          downvotes: 0,
-          followers: 0,
-          id: token,
-          upvotes: 0,
-          username: username
-        };
-        obj.set('users/'+token, obj.userData);
-        return obj.userData;
+    obj.checkAuth = function(){
+      return auth.$onAuthStateChanged(function(authData){
+        obj.auth = authData;
+        if(authData != null){
+        
+          return obj.get('users/'+authData.uid).then(function(data){
+            obj.userData = data;
+            $rootScope.$broadcast('loggedIn');
+            return obj.userData;
+          });
+        
+        }
+        return authData;
+      })
     };
   
     obj.logout = function(){
@@ -227,28 +210,21 @@ angular.module('app.services', [])
     
     
     //************************************* Database ******************************************
+  
+    obj.set = function(child, data){
+      db.ref(child).set(data);
+    };
+  
+    obj.get = function(child){
+      return db.ref(child).once("value").then(function(snapshot){
+        return snapshot.val();
+      });
+    };
     
     obj.getList = function(child){};
     
     obj.getOrderedbyLast = function(child, prop, num){
       return db.ref(child).orderByChild(prop).limitToLast(num);
-    };
-    
-    obj.checkAuth = function(){
-      return auth.$onAuthStateChanged(function(authData){
-        obj.auth = authData;
-        if(authData != null){
-        
-            return obj.get('users/'+authData.uid).then(function(data){
-              obj.userData = data;
-              $rootScope.$broadcast('loggedIn');
-              return obj.userData;
-            });
-          
-        }
-        return authData;
-        
-      })
     };
     
     obj.anonLogin = function(){

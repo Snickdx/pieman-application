@@ -140,7 +140,6 @@ angular.module('app.controllers', [])
         }else{
           $location.path('/status');
           ionicToast.show('Login Successful', 'bottom', false, 1000);
-          console.log(FB.getAuth());
           $rootScope.$broadcast('loggedIn');
         }
       });
@@ -219,11 +218,10 @@ angular.module('app.controllers', [])
       $scope.username = null;
       
       $scope.input = {notifications : FB.isMsgEnabled()};
-      
     
       $scope.$on('loggedIn', function(event) {
-        console.log('logged In!');
-        $scope.username = FB.userData.username;
+        console.log('logged in');
+        $scope.username = FB.getAuthData().displayName;
       });
       
       $scope.logout = function(){

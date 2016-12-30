@@ -94,10 +94,10 @@ router.post('/register', function(req, res) {
 });
 
 router.post('/notifyTopic', function(req, res) {
-  var response = sendNotification(req.body.message, "/topics/"+req.body.topic, (err, resp, body)=>{
-    return resp;
+  sendNotification(req.body.message, "/topics/"+req.body.topic, (err, resp, body)=>{
+    res.send(resp);
   });
-  res.send(response);
+  
 });
 
 router.get('/broadcast/:message', function(req, res){

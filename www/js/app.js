@@ -14,6 +14,6 @@ angular.module(
   ])
   
   .run(function($ionicPlatform, FB) {
-    // FB.checkAuth();
+    FB.checkAuth();
     FB.registerSW();
   });
