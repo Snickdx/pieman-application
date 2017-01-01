@@ -1,3 +1,7 @@
+//TODO move feedback to side bar
+//TODO pieman open & close countdown
+//TODO ping pieman
+//TODO sms api
 angular.module('app.controllers', [])
 
   .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $interval) {
@@ -11,6 +15,7 @@ angular.module('app.controllers', [])
         y: function(d){return d.y;},
         showLabels: true,
         duration: 400,
+        height: 250,
         labelThreshold: 0.01,
         labelSunbeamLayout: true,
         tooltip:{
@@ -155,7 +160,7 @@ angular.module('app.controllers', [])
 
         FB.push('/feed',{
           userid: FB.auth.uid,
-          user: FB.userData.username,
+          user: FB.userData.displayName,
           menu: hash,
           time: parseInt(moment().format('x')),
           present: $scope.input.toggle
@@ -174,22 +179,27 @@ angular.module('app.controllers', [])
   })
 
   .controller('menuCtrl', function(FB, $scope, ionicToast){
-      $scope.user = null;
+      $scope.user = 'nil';
+      
+      $scope.userData = null;
+      
+      $scope.isAuth = null;
       
       $scope.input = {notifications : FB.isMsgEnabled()};
     
       $scope.$on('loggedIn', function(event) {
         console.log('logged in');
         $scope.user = FB.getAuthData();
+        $scope.userData = FB.getUserData();
         console.log("Auth Data",$scope.user);
         ionicToast.show('Logged in as '+$scope.user.displayName, 'bottom', false, 3000);
       });
+    
       
       $scope.logout = function(){
         FB.logout();
         ionicToast.show('Logged Out!', 'bottom', false, 4000);
-        $scope.user.displayName = null;
-        
+        $scope.user = null;
       };
       
       $scope.toggleNotifications = () => {

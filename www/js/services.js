@@ -143,6 +143,10 @@ angular.module('app.services', [])
       return auth.$getAuth();
     };
     
+    obj.getUserData = function(){
+      return obj.userData;
+    };
+    
     obj.getUserName = function(){
       obj.userData = JSON.parse($localStorage.userData);
       console.log(obj.userData);
