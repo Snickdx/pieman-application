@@ -61,7 +61,6 @@
   <script src="lib/angular-nvd3/dist/angular-nvd3.min.js"></script>
   <script src="lib/firebase/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/3.5.2/firebase-messaging.js"></script>
-
   <script src="lib/angularfire/dist/angularfire.min.js"></script>
   <script src="lib/ionic-toast/dist/ionic-toast.bundle.min.js"></script>
   <script src="lib/angular-web-notification/angular-web-notification.js"></script>
@@ -72,12 +71,6 @@
   <script src="js/routes.js"></script>
   <script src="js/services.js"></script>
   <script src="js/directives.js"></script>
-
-
-
-  <!-- Only required for Tab projects w/ pages in multiple tabs
-  <script src="lib/ionicuirouter/ionicUIRouter.js"></script>
-  -->
 
 </head>
 <body ng-app="app" animation="slide-left-right-ios7">
@@ -97,13 +90,20 @@
         <div class="title">Menu</div>
       </ion-header-bar>
       <ion-content padding="true" class="side-menu-left has-header">
-        <h3 ng-if="username == null">Not logged In{{username}}</h3>
-        <h3 ng-if="username != null">{{username}}</h3>
+        <h3 ng-if="user.displayName == null">Not logged In</h3>
+        <div ng-if="user.displayName != null" class="row">
+          <div class="col col-center">
+              <img ng-src="{{user.photoURL}}" style="border-radius:50%;">
+          </div>
+          <div class="col-60 col-center col-offset-10">
+              <h3>{{user.displayName}}</h3>
+          </div>
+        </div>
         <ion-list id="menu-list6" class=" manual-list-fullwidth " data-componentid="list6">
           <ion-toggle ng-model="input.notifications" ng-change="toggleNotifications()" toggle-class="toggle-calm">Notifications</ion-toggle>
           <ion-item id="menu-list-item13" ui-sref="tabsController.pieManStatus" menu-close="" class="  " data-componentid="list-item13">Home</ion-item>
-          <ion-item ng-if="username != null" id="menu-list-item14" ng-click="logout()" class="  " data-componentid="list-item14">Log out</ion-item>
-          <ion-item ng-if="username == null" id="menu-list-item15" ng-click="LoginWithFacebook()" class="row" data-componentid="list-item14"> <i class=" col col-10 col-offset-7 icon icon ion-social-facebook"></i><div class="col">Login With Facebook</div></ion-item>
+          <ion-item ng-if="user.displayName != null" id="menu-list-item14" ng-click="logout()" class="  " data-componentid="list-item14">Log out</ion-item>
+          <ion-item ng-if="user.displayName == null" id="menu-list-item15" ng-click="LoginWithFacebook()" class="row" data-componentid="list-item14"> <i class=" col col-10 col-offset-7 icon icon ion-social-facebook"></i><div class="col">Login With Facebook</div></ion-item>
         </ion-list>
       </ion-content>
     </ion-side-menu>

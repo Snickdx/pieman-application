@@ -174,20 +174,22 @@ angular.module('app.controllers', [])
   })
 
   .controller('menuCtrl', function(FB, $scope, ionicToast){
-      $scope.username = null;
+      $scope.user = null;
       
       $scope.input = {notifications : FB.isMsgEnabled()};
     
       $scope.$on('loggedIn', function(event) {
         console.log('logged in');
-        $scope.username = FB.getAuthData().displayName;
-        ionicToast.show('Logged in as '+$scope.username, 'bottom', false, 3000);
+        $scope.user = FB.getAuthData();
+        console.log("Auth Data",$scope.user);
+        ionicToast.show('Logged in as '+$scope.user.displayName, 'bottom', false, 3000);
       });
       
       $scope.logout = function(){
         FB.logout();
         ionicToast.show('Logged Out!', 'bottom', false, 4000);
-        $scope.username = null;
+        $scope.user.displayName = null;
+        
       };
       
       $scope.toggleNotifications = () => {
