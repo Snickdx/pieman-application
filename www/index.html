@@ -101,9 +101,10 @@
         </div>
         <ion-list id="menu-list6" class=" manual-list-fullwidth " data-componentid="list6">
           <ion-toggle ng-model="input.notifications" ng-change="toggleNotifications()" toggle-class="toggle-calm">Notifications</ion-toggle>
-          <ion-item id="menu-list-item13" ui-sref="tabsController.pieManStatus" menu-close="" class="  " data-componentid="list-item13">Home</ion-item>
-          <ion-item ng-if="user.displayName != null" id="menu-list-item14" ng-click="logout()" class="  " data-componentid="list-item14">Log out</ion-item>
-          <ion-item ng-if="user.displayName == null" id="menu-list-item15" ng-click="LoginWithFacebook()" class="row" data-componentid="list-item14"> <i class=" col col-10 col-offset-7 icon icon ion-social-facebook"></i><div class="col">Login With Facebook</div></ion-item>
+          <ion-item id="menu-list-item13" ui-sref="tabsController.pieManStatus" menu-close="">Home</ion-item>
+          <ion-item ui-sref="leaveFeedback" menu-close="">Leave Feedback</ion-item>
+          <ion-item ng-if="user.displayName != null" ng-click="logout()">Log out</ion-item>
+          <ion-item ng-if="user.displayName == null" ng-click="LoginWithFacebook()" class="row"> <i class=" col col-10 col-offset-7 icon icon ion-social-facebook"></i><div class="col">Login With Facebook</div></ion-item>
         </ion-list>
       </ion-content>
     </ion-side-menu>

@@ -7,7 +7,13 @@ angular.module('app.routes', [])
     // Set up the various states which the app can be in.
     // Each state's controller can be found in controllers.js
     $stateProvider
-
+  
+      .state('tabsController', {
+        url: '/tabs',
+        templateUrl: 'templates/tabsController.html',
+        abstract:true
+      })
+  
       .state('tabsController.pieManStatus', {
         url: '/status',
         views: {
@@ -17,31 +23,31 @@ angular.module('app.routes', [])
           }
         }
       })
-
+  
+      .state('tabsController.piePolls', {
+        url: '/polls',
+        views: {
+          'tab2': {
+            templateUrl: 'templates/piePolls.html',
+            controller: 'piePollsCtrl'
+          }
+        }
+      })
+  
       .state('tabsController.reportFeed', {
         url: '/report',
         views: {
-          'tab2': {
+          'tab3': {
             templateUrl: 'templates/reportFeed.html',
             controller: 'reportFeedCtrl'
           }
         }
       })
 
-      .state('tabsController.leaveFeedback', {
+      .state('leaveFeedback', {
         url: '/feedback',
-        views: {
-          'tab3': {
-            templateUrl: 'templates/leaveFeedback.html',
-            controller: 'leaveFeedbackCtrl'
-          }
-        }
-      })
-
-      .state('tabsController', {
-        url: '/page1',
-        templateUrl: 'templates/tabsController.html',
-        abstract:true
+        templateUrl: 'templates/leaveFeedback.html',
+        controller: 'leaveFeedbackCtrl'
       })
       
       .state('pieReport', {
@@ -51,7 +57,7 @@ angular.module('app.routes', [])
 
       });
 
-    $urlRouterProvider.otherwise('/page1/status')
+    $urlRouterProvider.otherwise('/tabs/status')
 
 
 

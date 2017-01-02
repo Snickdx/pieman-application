@@ -188,6 +188,7 @@ angular.module('app.services', [])
             }
           );
         }
+        $rootScope.$broadcast('noAuth');
         return authData;
       })
     };

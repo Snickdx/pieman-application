@@ -1,55 +1,7 @@
-<ion-view title="Pie Man Status" id="page2" class=" ">
+<ion-view title="Pie Man Status" id="page1" class=" ">
   <ion-content  class="has-header col" style="max-height: 100%" ng-cloak>
 
-    <div ng-if=" user == null || userData.type=='user'">
-
-      <div class="row">
-        <div class="col col-center text-center">
-          <h3>Ey, De pie man in Sac awah?</h3>
-          <h4>{{time}}</h4>
-        </div>
-      </div>
-
-      <div class="row" style="min-height: 40vh">
-        <div class="col col-center">
-          <nvd3 options="options" data="data"></nvd3>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col col-center text-center">
-          <h5  style="color:#33CE3F;font-weight:600;">{{data[0].y}} {{ data[0].y == 1 ? "Person Says" : "People Say"}} YES</h5>
-          <h5  style="color:red;font-weight:600;">{{data[1].y}} {{ data[1].y == 1 ? "Person Says" : "People Say"}} NO</h5>
-          <h5> Showing reports taken between {{data.start}} and {{data.end}}</h5>
-        </div>
-      </div>
-
-      <!--<ion-list id="pieManStatus-list3" class=" ">-->
-      <!--<ion-item class="balanced  " id="pieManStatus-list-item2">Item 2</ion-item>-->
-      <!--<ion-item class="balanced  " id="pieManStatus-list-item1">Item 1</ion-item>-->
-      <!--<ion-item class="balanced  " id="pieManStatus-list-item3">Item 3</ion-item>-->
-      <!--</ion-list>-->
-
-      <div class="row row-baseline">
-        <div class="col col-80 col-center col-offset-10">
-          <a ng-click="report()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right ion-alert ">Make A Report</a>
-        </div>
-      </div>
-
-    </div>
-
-    {{isAuth }}
-
-    <div ng-if="userData.type =='pieman'">
-
-      <div class="row">
-        <div class="col col-center text-center">
-          <h3>Ey, De pie man in Sac awah?</h3>
-          <h4>{{time}}</h4>
-        </div>
-      </div>
-
-    </div>
+    <h2>Hi :)</h2>
 
   </ion-content>
 </ion-view>

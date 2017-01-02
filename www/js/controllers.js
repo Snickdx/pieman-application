@@ -84,6 +84,87 @@ angular.module('app.controllers', [])
   
   
   })
+  
+  .controller('piePollsCtrl', function($scope, ionicToast, FB, $location, $interval) {
+    
+    $scope.time = moment().format('hh:mm:ss A');
+    
+    $scope.options = {
+      chart: {
+        type: 'pieChart',
+        x: function(d){return d.key;},
+        y: function(d){return d.y;},
+        showLabels: true,
+        duration: 400,
+        height: 250,
+        labelThreshold: 0.01,
+        labelSunbeamLayout: true,
+        tooltip:{
+          enabled: true
+        }
+      }
+    };
+    
+    $scope.data = [
+      {
+        key: "Yes",
+        y: 0
+      },
+      {
+        key: "No",
+        y: 0
+      }
+    ];
+    
+    $interval(function() {
+      $scope.time = moment().format('hh:mm:ss A');
+    }, 1000);
+    
+    $interval(function(){
+      $scope.updateData();
+    }, 1000);
+    
+    $scope.updateData = function(){
+      $scope.data[0].y = 0;
+      $scope.data[1].y = 0;
+      $scope.data.list = [];
+      var flag = true;
+      var latest = null;
+      FB.getOrderedbyLast('feed','time',100).on('child_added', function(snapshot){
+        
+        var ms = moment().diff(moment(snapshot.val().time,"x"));
+        
+        if(ms < 3600000){
+          if(flag){
+            latest = moment(snapshot.val().time);
+            $scope.data.start = moment(snapshot.val().time).format('hh:mm:ss A');
+            flag = false
+          }
+          $scope.data.list.push(snapshot.val());
+          if(snapshot.val().present)$scope.data[0].y++;
+          else $scope.data[1].y++;
+        }
+        
+      });
+      
+      if(latest != null) $scope.data.end = latest.add(1, 'hours').format('hh:mm:ss  A Do MMM');
+      
+    };
+    
+    $scope.report = function(){
+      if(FB.auth == null)ionicToast.show('Login required, open top left menu to login', 'bottom', false, 4000);
+      else {
+        $location.path('/reportDetail');
+      }
+    };
+    
+    $scope.gcmSend = function(sub) {
+      // send token to server and save it
+      console.log(sub.subscriptionId);
+    };
+    
+    
+  })
 
   .controller('reportFeedCtrl', function($scope, FB) {
     $scope.feed = FB.getCollection('feed');
@@ -182,9 +263,7 @@ angular.module('app.controllers', [])
       $scope.user = 'nil';
       
       $scope.userData = null;
-      
-      $scope.isAuth = null;
-      
+    
       $scope.input = {notifications : FB.isMsgEnabled()};
     
       $scope.$on('loggedIn', function(event) {
@@ -194,7 +273,11 @@ angular.module('app.controllers', [])
         console.log("Auth Data",$scope.user);
         ionicToast.show('Logged in as '+$scope.user.displayName, 'bottom', false, 3000);
       });
-    
+  
+      $scope.$on('noAuth', function(event) {
+        console.log('not logged in');
+        $scope.user = null;
+      });
       
       $scope.logout = function(){
         FB.logout();
