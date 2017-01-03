@@ -11,6 +11,8 @@
     "ionic-toast": "~0.4.1",
     "moment": "~2.14.1",
     "angular-web-notification": "^1.0.21",
-    "ngstorage": "^0.3.11"
+    "ngstorage": "^0.3.11",
+    "ionic-timepicker": "^0.6.0",
+    "ionic-datepicker": "^1.2.1"
   }
 }

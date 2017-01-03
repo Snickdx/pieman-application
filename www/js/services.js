@@ -217,7 +217,9 @@ angular.module('app.services', [])
       });
     };
     
-    obj.getList = function(child){};
+    obj.getList = function(child){
+      
+    };
     
     obj.getOrderedbyLast = function(child, prop, num){
       return db.ref(child).orderByChild(prop).limitToLast(num);
@@ -235,10 +237,13 @@ angular.module('app.services', [])
       return $firebaseArray(db.ref(child));
     };
     
-    obj.getObject = function(){};
+    obj.getObject = function(child){
+      return $firebaseObject(db.ref(child));
+    };
     
     return obj;
   }])
+  
   .factory('NotifyService', ['webNotification', function(webNotification){
     
     let obj = {};

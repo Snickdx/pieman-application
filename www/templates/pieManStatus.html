@@ -1,7 +1,23 @@
 <ion-view title="Pie Man Status" id="page1" class=" ">
   <ion-content  class="has-header col" style="max-height: 100%" ng-cloak>
 
-    <h2>Hi :)</h2>
+    <div class="row">
+      <div class="col col-center text-center">
+        <h3>Pieman will arrive in</h3>
+        <h1>{{time.days}} Days : {{time.hours}} Hours : {{time.minutes}} Minutes : {{time.seconds}} Seconds</h1>
+        <h2>Until</h2>
+      </div>
+      <div ng-if="then < now " class="col col-center text-center">
+        <h3>Pieman left since in</h3>
+        <h1>{{time.days}} Days : {{time.hours}} Hours : {{time.minutes}} Minutes : {{time.seconds}} Seconds</h1>
+      </div>
+    </div>
+
+    <div class="row row-baseline col-center">
+      <div class="col col-80 col-center col-offset-10">
+        <a ng-click="setTime()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right">Update</a>
+      </div>
+    </div>
 
   </ion-content>
 </ion-view>
