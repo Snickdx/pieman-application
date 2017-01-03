@@ -14,6 +14,8 @@
     "express-cors": "0.0.3",
     "firebase": "^3.6.1",
     "jade": "~1.11.0",
+    "moment": "^2.17.1",
+    "moment-range": "^2.2.0",
     "morgan": "~1.7.0",
     "request": "^2.79.0",
     "serve-favicon": "~2.3.0"

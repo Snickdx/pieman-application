@@ -7,6 +7,21 @@
 var app = require('../app');
 var debug = require('debug')('pienotify:server');
 var http = require('http');
+var firebase = require('firebase');
+var momentRange = require('moment-range');
+var moment = require('moment');
+const request = require('request');
+
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
+  authDomain: "pieman-d47da.firebaseapp.com",
+  databaseURL: "https://pieman-d47da.firebaseio.com",
+  storageBucket: "pieman-d47da.appspot.com",
+  messagingSenderId: "371107496995",
+  // messagingSenderId:"103953800507"
+};
+
 
 /**
  * Get port from environment and store in Express.
@@ -49,6 +64,58 @@ function normalizePort(val) {
   return false;
 }
 
+function sendNotification(message, receiver, callback){
+  var data = {
+    "priority":"high",
+    "notification": {
+      "title": "Notipy Notification",
+      "body": message,
+      "click_action" : "https://pieman.online",
+      "icon": "http://pieman.online/img/pieman-128.png"
+    },
+    "to" : receiver
+  };
+  
+  request({
+    url: "https://fcm.googleapis.com/fcm/send",
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization':'key=AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA'
+    },
+    json: data
+  }, function(err, resp, body){
+    if (callback != undefined) callback(err, resp, body);
+  })
+}
+
+
+function runNotipy() {
+  setInterval(function(){
+    
+    firebase.database().ref('pietime').once('value', function(snapshot) {
+      
+      var pietime = snapshot.val();
+      var arriveStart = moment(pietime.arrive);
+      var arriveEnd = moment(pietime.arrive).add(5, 'm');
+      var now = moment().add(10, 'm');
+      var range =  moment.range(arriveStart, arriveEnd);
+
+      console.log("Arrive Range: "+arriveStart.format("DD MMM YY hh:mm A")+" to "+arriveEnd.format('hh:mm A')+" | ", "Now: "+moment(now).format("DD MMM YY hh:mm:ss A")+" | In range:", range.contains(now),"\n");
+  
+      if (!pietime.notified && range.contains(now)){
+        console.log("sending notification send");
+        sendNotification("Ey pieman in SAC!", "/topics/general", ()=>{
+          firebase.database().ref('pietime/notified').set(true);
+          console.log('Notification Sent!')
+        });
+      }
+      
+    });
+  }, 3000);
+}
+
+
 /**
  * Event listener for HTTP server "error" event.
  */
@@ -87,4 +154,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  runNotipy();
 }

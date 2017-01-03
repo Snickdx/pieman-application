@@ -4,43 +4,92 @@
 //TODO sms api
 angular.module('app.controllers', [])
   
-  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $interval, ionicTimePicker) {
+  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $interval, ionicTimePicker, ionicDatePicker){
+    
+    $scope.userData = FB.getUserData();
+    
+    $scope.ui = {
+      show:false
+    };
+    
+    $scope.$on('loggedIn', function(event) {
+      console.log('logged in');
+      $scope.userData = FB.getUserData();
+      $scope.ui = $scope.userData.type == 'pieman';
+    });
+  
+    $scope.$on('noAuth', function(event) {
+      $scope.userData = null;
+      $scope.ui = false;
+    });
     
     $scope.time = {};
     
-    FB.getObject('/pietime/arrive').$loaded(obj=>{
-  
-      $interval(function() {
-        
-        let duration = moment.duration(moment(obj.$value) - moment(), 'milliseconds');
-        duration = moment.duration(duration.asMilliseconds() - 1000, 'milliseconds');
-        $scope.time.days = moment.duration(duration).days();
-        $scope.time.hours = moment.duration(duration).hours();
-        $scope.time.minutes = moment.duration(duration).minutes();
-        $scope.time.seconds = moment.duration(duration).seconds();
-        
-      }, 1000);
-      
-    });
+    $scope.pretty = (time) => {
+      return moment(time).format(' DD MMM YYYY hh:mm:ss A');
+    };
     
-    $scope.setTime = () => {
-      var ipObj1 = {
-        callback: function (val) {      //Mandatory
-          if (typeof (val) === 'undefined') {
+    $scope.refresh = () => {
+      FB.getObject('/pietime').$loaded(obj=>{
+    
+        $interval(function() {
+          let duration = moment.duration(moment(obj.arrive.$value) - moment(), 'milliseconds');
+          duration = moment.duration(duration.asMilliseconds() - 1000, 'milliseconds');
+          $scope.time.now = new moment().unix()*1000;
+          $scope.time.arrive = moment(parseInt(obj.$value));
+          $scope.time.days = moment.duration(duration).days();
+          $scope.time.hours = moment.duration(duration).hours();
+          $scope.time.minutes = moment.duration(duration).minutes();
+          $scope.time.seconds = moment.duration(duration).seconds();
+          FB.getObject('pietime/depart').$loaded(depart=>{
+            $scope.time.depart = moment(parseInt(depart.$value));
+          });
+      
+        }, 1000);
+    
+      });
+    };
+    
+    $scope.refresh();
+    
+    let date;
+    
+    $scope.setTime = (type) => {
+      
+      var ipObj2 = {
+        callback: function (val2) {      //Mandatory
+          if (typeof (val2) === 'undefined') {
             console.log('Time not selected');
           } else {
-            var selectedTime = new Date(val * 1000);
-            console.log('Selected epoch is : ', val, 'and the time is ', selectedTime.getUTCHours(), 'H :', selectedTime.getUTCMinutes(), 'M');
+            let datetime = moment(date) + new Date(val2)*1000;
+            console.log('Selected epoch is', moment(datetime).format("DD MMM YYYY hh:mm:ss A"), datetime);
+            FB.set(`/pietime/${type}`, datetime);
+            if(type == 'arrive')FB.set(`/pietime/notified`, false);
+            $scope.refresh();
           }
         },
-        inputTime: 50400,   //Optional
+        inputTime: (((new Date("January, 2017 12:00:00")).getHours() * 60 * 60) + ((new Date("January, 2017 12:00:00")).getMinutes() * 60)),
         format: 12,         //Optional
         step: 15,           //Optional
-        setLabel: 'Set'    //Optional
       };
       
-      ionicTimePicker.openTimePicker(ipObj1);
+      var ipObj1 = {
+        callback: function (val) {
+          date = val;
+          ionicTimePicker.openTimePicker(ipObj2);
+        },
+        from: new Date(), //Optional
+        to: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), //Optional
+        inputDate: new Date(),      //Optional
+        mondayFirst: true,          //Optional
+        showTodayButton: true,      //Optional
+        closeOnSelect: false,       //Optional
+        templateType: 'modal'       //Optional
+      };
+      
+      ionicDatePicker.openDatePicker(ipObj1);
     };
+  
     
   })
   
