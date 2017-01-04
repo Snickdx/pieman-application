@@ -3,43 +3,33 @@
 
     <div class="row">
 
-      <div  ng-if="time.now <= time.arrive" class="col col-center text-center">
+      <div  ng-show="time.now <= time.arrive" class="col col-center text-center">
         <h3>Pieman will arrive at {{pretty(time.arrive)}}</h3>
         <h1>{{time.days}} Days : {{time.hours}} Hrs : {{time.minutes}} Mins : {{time.seconds}} Secs</h1>
         <h3>Departs at {{pretty(time.depart)}}</h3>
       </div>
 
-      <div ng-if="time.now < time.depart" class="col col-center text-center">
-        <h3>Pieman in SAC leaving at {{pretty(time.depart)}}</h3>
+      <div ng-show="time.arrive <= time.now && time.now <= time.depart" class="col col-center text-center">
+        <h3>Pieman is in SAC since {{pretty(time.arrive)}}</h3>
+        <h3>leaving at {{pretty(time.depart)}}</h3>
         <!--<h1>{{time.days}} Days : {{time.hours}} Hrs : {{time.minutes}} Mins : {{time.seconds}} Secs</h1>-->
       </div>
 
-      <div ng-if="time.now > time.depart" class="col col-center text-center">
+      <div ng-show="time.now > time.depart" class="col col-center text-center">
         <h3>Pieman left at {{pretty(time.depart)}}</h3>
         <h1>{{-time.days}} Days : {{-time.hours}} Hrs : {{-time.minutes}} Mins : {{-time.seconds}} Secs</h1>
         <h3>Ago</h3>
       </div>
 
     </div>
-    <input type="hidden" ng-model="ui.show">
-    <div>
-      <div class="row row-baseline col-center">
 
-        <div class="col col-80 col-center col-offset-10">
-          <a ng-click="setTime('arrive')" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right">Update Arrival</a>
-        </div>
+    <div class="row row-baseline col-center" ng-hide="userData.type != 'pieman'">
 
+      <div class="col col-80 col-center col-offset-10">
+        <a ng-click="setTime()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right">Update</a>
       </div>
 
-      <div class="row row-baseline col-center">
-
-        <div class="col col-80 col-center col-offset-10">
-          <a ng-click="setTime('depart')" id="pieManStatus-button5" class=" button button-royal button-large button-block icon-right">Update Departure</a>
-        </div>
-
-      </div>
     </div>
-
 
   </ion-content>
 </ion-view>

@@ -6,9 +6,6 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
-var textTransformation = require('gulp-text-simple');
-var inject = require('gulp-inject-string');
-
 var paths = {
   sass: ['./scss/**/*.scss']
 };
@@ -57,27 +54,21 @@ gulp.task('generate-service-worker', function(callback) {
   var swPrecache = require('sw-precache');
   var rootDir = 'www';
   
-  swPrecache.write(path.join(rootDir, 'service-worker.js'), {
-    staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,jpg,gif,svg,eot,ttf,woff}'],
-    stripPrefix: rootDir
-  }, callback);
+  swPrecache.write(
+    path.join(rootDir, 'service-worker.js'),
+    {
+      staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,jpg,gif,svg,eot,ttf,woff}'],
+      stripPrefix: rootDir,
+      importScripts: [
+        'js/firebase-app.js',
+        'js/firebase-messaging.js',
+        'js/FCMScript.js'
+      ],
+    },
+    callback
+  );
 });
 
-gulp.task('build', ['generate-service-worker'], function(){
-  gulp.src('PWA/service-worker.js').pipe(
-    (
-      textTransformation(
-        str=>{
-          gulp.src('www/service-worker.js')
-            .pipe(inject.append('\n'+str))
-            .pipe(gulp.dest('www'));
-          return str;
-        }
-      )
-    )()
-  )
-});
-
-gulp.task('deploy', ['build'], function(){
+gulp.task('deploy', ['generate-service-worker'], function(){
   sh.exec('firebase deploy');
 });

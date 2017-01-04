@@ -33,12 +33,32 @@ angular.module('app.services', [])
     
     obj.registerSW = () => {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(function(registration){
-            console.log('service worker installed');
-            msg.useServiceWorker(registration);
-          })
-          .catch(function(err){console.log('Error', err)});
+        navigator.serviceWorker.register('service-worker.js').then(function(reg) {
+          msg.useServiceWorker(reg);
+          reg.onupdatefound = function() {
+
+            let installingWorker = reg.installing;
+            
+        
+            installingWorker.onstatechange = function() {
+              switch (installingWorker.state) {
+                case 'installed':
+                  if (navigator.serviceWorker.controller) {
+                    ionicToast.show('New Content Available Please Refresh', 'bottom', false, 4000);
+                    console.log('New or updated content is available.');
+                  } else {
+                    console.log('Content is now available offline!');
+                  }
+                  break;
+                case 'redundant':
+                  console.error('The installing service worker became redundant.');
+                  break;
+              }
+            };
+          };
+        }).catch(function(e) {
+          console.error('Error during service worker registration:', e);
+        });
       }
     };
     

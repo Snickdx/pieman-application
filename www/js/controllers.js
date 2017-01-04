@@ -13,7 +13,6 @@ angular.module('app.controllers', [])
     };
     
     $scope.$on('loggedIn', function(event) {
-      console.log('logged in');
       $scope.userData = FB.getUserData();
       $scope.ui = $scope.userData.type == 'pieman';
     });
@@ -33,18 +32,15 @@ angular.module('app.controllers', [])
       FB.getObject('/pietime').$loaded(obj=>{
     
         $interval(function() {
-          let duration = moment.duration(moment(obj.arrive.$value) - moment(), 'milliseconds');
+          let duration = moment.duration(moment(obj.arrive) - moment(), 'milliseconds');
           duration = moment.duration(duration.asMilliseconds() - 1000, 'milliseconds');
           $scope.time.now = new moment().unix()*1000;
-          $scope.time.arrive = moment(parseInt(obj.$value));
+          $scope.time.arrive = parseInt(obj.arrive);
+          $scope.time.depart = parseInt(obj.depart);
           $scope.time.days = moment.duration(duration).days();
           $scope.time.hours = moment.duration(duration).hours();
           $scope.time.minutes = moment.duration(duration).minutes();
           $scope.time.seconds = moment.duration(duration).seconds();
-          FB.getObject('pietime/depart').$loaded(depart=>{
-            $scope.time.depart = moment(parseInt(depart.$value));
-          });
-      
         }, 1000);
     
       });
@@ -54,9 +50,8 @@ angular.module('app.controllers', [])
     
     let date;
     
-    $scope.setTime = (type) => {
-      
-      var ipObj2 = {
+    function setTime(type, callback){
+      ionicTimePicker.openTimePicker({
         callback: function (val2) {      //Mandatory
           if (typeof (val2) === 'undefined') {
             console.log('Time not selected');
@@ -65,18 +60,26 @@ angular.module('app.controllers', [])
             console.log('Selected epoch is', moment(datetime).format("DD MMM YYYY hh:mm:ss A"), datetime);
             FB.set(`/pietime/${type}`, datetime);
             if(type == 'arrive')FB.set(`/pietime/notified`, false);
+            if(callback != undefined)callback();
             $scope.refresh();
           }
         },
         inputTime: (((new Date("January, 2017 12:00:00")).getHours() * 60 * 60) + ((new Date("January, 2017 12:00:00")).getMinutes() * 60)),
         format: 12,         //Optional
         step: 15,           //Optional
-      };
-      
-      var ipObj1 = {
+      });
+    }
+    
+    $scope.setTime = () => {
+  
+      ionicDatePicker.openDatePicker({
         callback: function (val) {
           date = val;
-          ionicTimePicker.openTimePicker(ipObj2);
+          setTime('arrive', ()=>{
+            ionicToast.show('Set Departure Time', 'top', false, 1000);
+            setTime('depart');
+          });
+          ionicToast.show('Set Arrival Time', 'top', false, 1000);
         },
         from: new Date(), //Optional
         to: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), //Optional
@@ -85,9 +88,8 @@ angular.module('app.controllers', [])
         showTodayButton: true,      //Optional
         closeOnSelect: false,       //Optional
         templateType: 'modal'       //Optional
-      };
+      });
       
-      ionicDatePicker.openDatePicker(ipObj1);
     };
   
     
