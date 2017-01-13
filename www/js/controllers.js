@@ -1,5 +1,3 @@
-//TODO move feedback to side bar
-//TODO pieman open & close countdown
 //TODO ping pieman
 //TODO sms api
 angular.module('app.controllers', [])
