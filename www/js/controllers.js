@@ -8,10 +8,6 @@ angular.module('app.controllers', [])
     
     $scope.userData = FB.getUserData();
     
-    $scope.ui = {
-      show:false
-    };
-    
     $scope.$on('loggedIn', function(event) {
       $scope.userData = FB.getUserData();
       $scope.ui = $scope.userData.type == 'pieman';
@@ -48,50 +44,47 @@ angular.module('app.controllers', [])
     
     $scope.refresh();
     
-    let date;
-    
-    function setTime(type, callback){
+    function setTime(newDate, callback){
       ionicTimePicker.openTimePicker({
-        callback: function (val2) {      //Mandatory
-          if (typeof (val2) === 'undefined') {
+        callback: function (newTime) {
+          if (typeof (newTime) === 'undefined') {
             console.log('Time not selected');
           } else {
-            let datetime = moment(date) + new Date(val2)*1000;
+            let datetime = moment(newDate) + new Date(newTime)*1000;
             console.log('Selected epoch is', moment(datetime).format("DD MMM YYYY hh:mm:ss A"), datetime);
-            FB.set(`/pietime/${type}`, datetime);
-            if(type == 'arrive')FB.set(`/pietime/notified`, false);
-            if(callback != undefined)callback();
-            $scope.refresh();
+            callback(datetime);
           }
         },
-        inputTime: (((new Date("January, 2017 12:00:00")).getHours() * 60 * 60) + ((new Date("January, 2017 12:00:00")).getMinutes() * 60)),
-        format: 12,         //Optional
-        step: 15,           //Optional
+        format: 12,
+        step: 1
       });
     }
     
     $scope.setTime = () => {
-  
+      
       ionicDatePicker.openDatePicker({
-        callback: function (val) {
-          date = val;
-          setTime('arrive', ()=>{
+        callback: function (newDate) {
+          
+          setTime(newDate, arriveTime => {
             ionicToast.show('Set Departure Time', 'top', false, 1000);
-            setTime('depart');
+            
+            setTime(newDate, departTime => {
+              FB.update(`/pietime`, {
+                notified: false,
+                arrive: arriveTime,
+                depart: departTime
+              });
+              $scope.refresh();
+            });
+            
           });
+          
           ionicToast.show('Set Arrival Time', 'top', false, 1000);
         },
-        from: new Date(), //Optional
-        to: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), //Optional
-        inputDate: new Date(),      //Optional
-        mondayFirst: true,          //Optional
-        showTodayButton: true,      //Optional
-        closeOnSelect: false,       //Optional
-        templateType: 'modal'       //Optional
+        templateType: 'modal'
       });
       
     };
-  
     
   })
   

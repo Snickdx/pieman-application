@@ -241,6 +241,10 @@ angular.module('app.services', [])
       
     };
     
+    obj.update = function(child, obj){
+      return db.ref(child).update(obj);
+    };
+    
     obj.getOrderedbyLast = function(child, prop, num){
       return db.ref(child).orderByChild(prop).limitToLast(num);
     };
