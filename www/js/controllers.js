@@ -1,8 +1,11 @@
 //TODO ping pieman
-//TODO sms api
+//TODO time picker bugfix
+//TODO sms features
+//TODO data caching
+//TODO update cache on notification
 angular.module('app.controllers', [])
   
-  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $interval, ionicTimePicker, ionicDatePicker){
+  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker){
     
     $scope.userData = FB.getUserData();
     
@@ -17,30 +20,72 @@ angular.module('app.controllers', [])
     });
     
     $scope.time = {};
+  
+    $scope.state = null;
+    
+    $scope.loading = true;
+    
+    $scope.arrive = null;
+    
+    $scope.depart = null;
+    
+    $scope.duration = 0;
+    
+    $scope.countdown = null;
+    
+    $scope.refresh = () => {
+      console.log($scope.pietime);
+      $scope.arrive = moment($scope.pietime.arrive);
+      $scope.depart = moment($scope.pietime.depart);
+      let now = new moment();
+  
+      if($scope.arrive.isBefore(now) && $scope.depart.isAfter(now)){
+        $scope.state = 'In SAC';
+        $scope.duration = $scope.depart.diff(now, 'seconds');
+        $scope.countdown = true;
+      }else if($scope.arrive.isBefore(now) && $scope.depart.isBefore(now)){
+        $scope.state = 'Left SAC';
+        $scope.duration = now.diff($scope.depart, 'seconds');
+        $scope.countdown = false;
+      }else if($scope.arrive.isAfter(now) && $scope.depart.isAfter(now)){
+        $scope.state = 'Coming To SAC';
+        $scope.duration = $scope.arrive.diff(now, 'seconds');
+        $scope.countdown = true;
+      }
+      console.log($scope.state, $scope.duration);
+      $scope.setClock($scope.duration, $scope.countdown);
+    };
     
     $scope.pretty = (time) => {
       return moment(time).format(' DD MMM YYYY hh:mm:ss A');
     };
     
-    $scope.refresh = () => {
-      FB.getObject('/pietime').$loaded(obj=>{
+    FB.onChange('/pietime', 'value', pietime => {
+      $scope.pietime = pietime.val();
+      $scope.refresh();
+      $scope.loading = false;
+    });
     
-        $interval(function() {
-          let duration = moment.duration(moment(obj.arrive) - moment(), 'milliseconds');
-          duration = moment.duration(duration.asMilliseconds() - 1000, 'milliseconds');
-          $scope.time.now = new moment().unix()*1000;
-          $scope.time.arrive = parseInt(obj.arrive);
-          $scope.time.depart = parseInt(obj.depart);
-          $scope.time.days = moment.duration(duration).days();
-          $scope.time.hours = moment.duration(duration).hours();
-          $scope.time.minutes = moment.duration(duration).minutes();
-          $scope.time.seconds = moment.duration(duration).seconds();
-        }, 1000);
-    
+    $scope.setClock = (duration, countdown) => {
+      
+      $('.clock1').FlipClock( duration, {
+        countdown: countdown,
+        callbacks: {
+         interval: ()=>{
+           if(countdown){
+             duration--;
+             console.log(duration);
+             if(duration == 0){
+                 $scope.loading = true;
+                 $timeout($scope.refresh(), 3000);
+                 $scope.loading = false;
+             }
+           }
+         }
+        }
       });
+      
     };
-    
-    $scope.refresh();
     
     function setTime(newDate, callback){
       ionicTimePicker.openTimePicker({
@@ -65,16 +110,20 @@ angular.module('app.controllers', [])
           
           setTime(newDate, arriveTime => {
             ionicToast.show('Set Departure Time', 'top', false, 1000);
-            
-            setTime(newDate, departTime => {
-              FB.update(`/pietime`, {
-                notified: false,
-                arrive: arriveTime,
-                depart: departTime
+              ionicDatePicker.openDatePicker({
+                callback: function (newDate) {
+                  setTime(newDate, departTime => {
+                    let time = {
+                      notified: false,
+                      arrive: arriveTime,
+                      depart: departTime
+                    };
+                    FB.update(`/pietime`, time);
+                    $scope.setClock(time);
+                  });
+                },
+                templateType: 'modal'
               });
-              $scope.refresh();
-            });
-            
           });
           
           ionicToast.show('Set Arrival Time', 'top', false, 1000);

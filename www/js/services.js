@@ -34,12 +34,12 @@ angular.module('app.services', [])
     obj.registerSW = () => {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js').then(function(reg) {
+          
           msg.useServiceWorker(reg);
           reg.onupdatefound = function() {
 
             let installingWorker = reg.installing;
             
-        
             installingWorker.onstatechange = function() {
               switch (installingWorker.state) {
                 case 'installed':
@@ -231,6 +231,7 @@ angular.module('app.services', [])
       db.ref(child).set(data);
     };
     
+    //returns promise
     obj.get = function(child){
       return db.ref(child).once("value").then(function(snapshot){
         return snapshot.val();
@@ -239,6 +240,12 @@ angular.module('app.services', [])
     
     obj.getList = function(child){
       
+    };
+    
+    obj.onChange = function(child, type, callback){
+      return db.ref(child).on(type, snapshot => {
+        callback(snapshot);
+      });
     };
     
     obj.update = function(child, obj){
