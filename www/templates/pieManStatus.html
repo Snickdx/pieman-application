@@ -1,5 +1,5 @@
 <ion-view title="Pie Man Status" id="page1" class=" ">
-  <ion-content  class="has-header" style="height: 100%">
+  <ion-content  class="has-header" style="height: 90%">
 
     <div ng-show="loading" class="row row-center" style="height: 100%">
       <div class="col col-center">
@@ -13,8 +13,8 @@
 
         <div ng-show="state == 'In SAC' " class="row">
           <div class="col col-100">
-            <h1 class="text-center">Pieman is in SAC</h1>
-            <h2 class="text-center">he is leaving in</h2>
+            <h2 class="text-center">Pieman is in SAC</h2>
+            <h3 class="text-center">he is leaving in</h3>
           </div>
         </div>
 
@@ -33,8 +33,11 @@
         </div>
 
         <br>
-        <div class="row clock1"></div>
-        <br>
+
+        <div class="row">
+          <!--class="clock1 col col-50 col-offset-25" style="padding-left: 50px"-->
+            <div class="clock1"></div>
+        </div>
 
         <div class="row" ng-show="state == 'Left SAC'">
           <div class="col col-center col-100">
@@ -46,6 +49,8 @@
 
           <div class="col col-80 col-center col-offset-10">
             <a ng-click="setTime()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right">Update</a>
+
+            <!--<a ng-click="setTimer(30, true)" class=" button button-royal button-large button-block icon-right">Count</a>-->
           </div>
 
         </div>

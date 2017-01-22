@@ -1,22 +1,18 @@
 //TODO ping pieman
-//TODO time picker bugfix
-//TODO sms features
 //TODO data caching
-//TODO update cache on notification
+//TODO online background
 angular.module('app.controllers', [])
   
   .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker){
     
     $scope.userData = FB.getUserData();
     
-    $scope.$on('loggedIn', function(event) {
+    $scope.$on('loggedIn', function() {
       $scope.userData = FB.getUserData();
-      $scope.ui = $scope.userData.type == 'pieman';
     });
   
-    $scope.$on('noAuth', function(event) {
+    $scope.$on('noAuth', function() {
       $scope.userData = null;
-      $scope.ui = false;
     });
     
     $scope.time = {};
@@ -25,35 +21,35 @@ angular.module('app.controllers', [])
     
     $scope.loading = true;
     
-    $scope.arrive = null;
     
-    $scope.depart = null;
-    
-    $scope.duration = 0;
-    
-    $scope.countdown = null;
-    
-    $scope.refresh = () => {
-      console.log($scope.pietime);
-      $scope.arrive = moment($scope.pietime.arrive);
-      $scope.depart = moment($scope.pietime.depart);
+    $scope.updateState = () => {
+
+      let arrive = moment($scope.pietime.arrive);
+      let depart = moment($scope.pietime.depart);
       let now = new moment();
+      let duration= 0;
+      let countdown = null;
   
-      if($scope.arrive.isBefore(now) && $scope.depart.isAfter(now)){
+      if(arrive.isBefore(now) && depart.isAfter(now)){
         $scope.state = 'In SAC';
-        $scope.duration = $scope.depart.diff(now, 'seconds');
-        $scope.countdown = true;
-      }else if($scope.arrive.isBefore(now) && $scope.depart.isBefore(now)){
+        duration = depart.diff(now, 'seconds');
+        countdown = true;
+      }else if(arrive.isBefore(now) && depart.isBefore(now)){
         $scope.state = 'Left SAC';
-        $scope.duration = now.diff($scope.depart, 'seconds');
-        $scope.countdown = false;
-      }else if($scope.arrive.isAfter(now) && $scope.depart.isAfter(now)){
+        duration = now.diff(depart, 'seconds');
+        countdown = false;
+      }else if(arrive.isAfter(now) && depart.isAfter(now)){
         $scope.state = 'Coming To SAC';
-        $scope.duration = $scope.arrive.diff(now, 'seconds');
-        $scope.countdown = true;
+        duration = arrive.diff(now, 'seconds');
+        countdown = true;
       }
-      console.log($scope.state, $scope.duration);
-      $scope.setClock($scope.duration, $scope.countdown);
+      
+      console.log($scope.state, duration);
+      console.log($scope.pretty(arrive));
+      console.log($scope.pretty(depart));
+      console.log($scope.pretty(now));
+      $scope.setTimer(duration, countdown);
+      
     };
     
     $scope.pretty = (time) => {
@@ -62,29 +58,32 @@ angular.module('app.controllers', [])
     
     FB.onChange('/pietime', 'value', pietime => {
       $scope.pietime = pietime.val();
-      $scope.refresh();
+      console.log('Pietime updated');
+      $scope.updateState();
       $scope.loading = false;
     });
-    
-    $scope.setClock = (duration, countdown) => {
+  
+    $scope.setTimer = (duration, countdown) => {
       
       $('.clock1').FlipClock( duration, {
         countdown: countdown,
         callbacks: {
-         interval: ()=>{
-           if(countdown){
-             duration--;
-             console.log(duration);
-             if(duration == 0){
-                 $scope.loading = true;
-                 $timeout($scope.refresh(), 3000);
-                 $scope.loading = false;
-             }
-           }
-         }
+          interval: ()=>{
+            if(countdown){
+              duration--;
+              if(duration == 0){
+                $scope.loading = true;
+                $timeout(()=>{
+                  console.log('countdown finished');
+                  $scope.updateState();
+                  $scope.loading = false;
+                }, 3000);
+              }
+            }
+          }
         }
       });
-      
+    
     };
     
     function setTime(newDate, callback){
@@ -93,9 +92,7 @@ angular.module('app.controllers', [])
           if (typeof (newTime) === 'undefined') {
             console.log('Time not selected');
           } else {
-            let datetime = moment(newDate) + new Date(newTime)*1000;
-            console.log('Selected epoch is', moment(datetime).format("DD MMM YYYY hh:mm:ss A"), datetime);
-            callback(datetime);
+            callback(moment(newDate) + new Date(newTime)*1000);
           }
         },
         format: 12,
@@ -113,13 +110,18 @@ angular.module('app.controllers', [])
               ionicDatePicker.openDatePicker({
                 callback: function (newDate) {
                   setTime(newDate, departTime => {
-                    let time = {
-                      notified: false,
-                      arrive: arriveTime,
-                      depart: departTime
-                    };
-                    FB.update(`/pietime`, time);
-                    $scope.setClock(time);
+                    if(moment(arriveTime).isAfter(moment(departTime))){
+                      ionicToast.show('Error: Arrival cannot be after departure', 'bottom', false, 3);
+                    }else if(moment(arriveTime).isBefore(new moment())){
+                      ionicToast.show('Error: Arrival cannot be in the past', 'bottom', false, 3)
+                    }else{
+                      let time = {
+                        notified: false,
+                        arrive: arriveTime,
+                        depart: departTime
+                      };
+                      FB.update(`/pietime`, time);
+                    }
                   });
                 },
                 templateType: 'modal'
@@ -320,7 +322,6 @@ angular.module('app.controllers', [])
     });
     
     $scope.$on('noAuth', function(event) {
-      console.log('not logged in');
       $scope.user = null;
     });
     
