@@ -60,8 +60,7 @@ gulp.task('generate-service-worker', function(callback) {
       staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,jpg,gif,svg,eot,ttf,woff}'],
       stripPrefix: rootDir,
       importScripts: [
-        'js/firebase-app.js',
-        'js/firebase-messaging.js',
+        'lib/firebase/firebase.js',
         'js/FCMScript.js'
       ],
     },

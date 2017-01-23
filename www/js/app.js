@@ -12,7 +12,8 @@ angular.module(
     'angular-web-notification',
     'ngStorage',
     'ionic-timepicker',
-    'ionic-datepicker'
+    'ionic-datepicker',
+    'pouchdb'
   ])
   
   .run(function($ionicPlatform, FB) {

@@ -1,9 +1,9 @@
 //TODO ping pieman
-//TODO data caching
-//TODO online background
+//TODO show online status and refresh
+//TODO online status on background
 angular.module('app.controllers', [])
   
-  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker){
+  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, pouchDB){
     
     $scope.userData = FB.getUserData();
     
@@ -21,6 +21,14 @@ angular.module('app.controllers', [])
     
     $scope.loading = true;
     
+    let pdb = pouchDB('pieman');
+    
+    pdb.get('pietime').then(pietime =>{
+      $scope.pietime = pietime;
+      $scope.loading = false;
+    }).catch(error => {
+      console.log(error);
+    });
     
     $scope.updateState = () => {
 
@@ -58,6 +66,13 @@ angular.module('app.controllers', [])
     
     FB.onChange('/pietime', 'value', pietime => {
       $scope.pietime = pietime.val();
+      pdb.post(pietime.val()).then(res=>{
+        console.log("saved", res);
+      }).then(res=>{
+        $scope.pieman = res
+      }).catch(err=>{
+        console.log(err);
+      });
       console.log('Pietime updated');
       $scope.updateState();
       $scope.loading = false;
