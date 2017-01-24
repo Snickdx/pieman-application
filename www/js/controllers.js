@@ -1,9 +1,12 @@
 //TODO ping pieman
 //TODO show online status and refresh
 //TODO online status on background
+//TODO add to homescreen button
+//TODO add update status and button
+//TODO notifications info page
 angular.module('app.controllers', [])
   
-  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, pouchDB){
+  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, pouchDB, $localStorage){
     
     $scope.userData = FB.getUserData();
     
@@ -23,12 +26,23 @@ angular.module('app.controllers', [])
     
     let pdb = pouchDB('pieman');
     
-    pdb.get('pietime').then(pietime =>{
-      $scope.pietime = pietime;
-      $scope.loading = false;
-    }).catch(error => {
-      console.log(error);
-    });
+    if($localStorage.cacheId != undefined){
+      pdb.get($localStorage.cacheId).then(pietime=>{
+        $scope.pietime = pietime;
+        $scope.loading = false;
+        console.log('Loaded', pietime, 'from cache');
+      });
+    }else{
+      console.log('no cache present');
+    }
+  
+ 
+    $scope.replicate = function(obj) {
+      pdb.post(obj).then(res=>{
+        console.log('Saved Pietime', res);
+        $localStorage.cacheId = res.id;
+      });
+    };
     
     $scope.updateState = () => {
 
@@ -66,13 +80,7 @@ angular.module('app.controllers', [])
     
     FB.onChange('/pietime', 'value', pietime => {
       $scope.pietime = pietime.val();
-      pdb.post(pietime.val()).then(res=>{
-        console.log("saved", res);
-      }).then(res=>{
-        $scope.pieman = res
-      }).catch(err=>{
-        console.log(err);
-      });
+      $scope.replicate(pietime.val());
       console.log('Pietime updated');
       $scope.updateState();
       $scope.loading = false;
