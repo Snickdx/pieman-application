@@ -2,11 +2,11 @@
 //TODO show online status and refresh
 //TODO online status on background
 //TODO add to homescreen button
-//TODO add update status and button
 //TODO notifications info page
+//TODO global config to show updates
 angular.module('app.controllers', [])
   
-  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, pouchDB, $localStorage){
+  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, $localStorage, $state){
     
     $scope.userData = FB.getUserData();
     
@@ -23,26 +23,24 @@ angular.module('app.controllers', [])
     $scope.state = null;
     
     $scope.loading = true;
-    
-    let pdb = pouchDB('pieman');
-    
-    if($localStorage.cacheId != undefined){
-      pdb.get($localStorage.cacheId).then(pietime=>{
+  
+    $scope.doRefresh = ()=>{
+      FB.get('pietime').then(pietime=>{
         $scope.pietime = pietime;
-        $scope.loading = false;
-        console.log('Loaded', pietime, 'from cache');
+        $localStorage.pietime = JSON.stringify(pietime);
+        $scope.updateState();
+        $state.reload();
+        $scope.$broadcast('scroll.refreshComplete');
       });
+    };
+    
+    if($localStorage.pietime != undefined){
+      $scope.pietime = JSON.parse($localStorage.pietime);
+      $scope.loading = false;
+      console.log('Loaded from cache');
     }else{
       console.log('no cache present');
     }
-  
- 
-    $scope.replicate = function(obj) {
-      pdb.post(obj).then(res=>{
-        console.log('Saved Pietime', res);
-        $localStorage.cacheId = res.id;
-      });
-    };
     
     $scope.updateState = () => {
 
@@ -80,10 +78,12 @@ angular.module('app.controllers', [])
     
     FB.onChange('/pietime', 'value', pietime => {
       $scope.pietime = pietime.val();
-      $scope.replicate(pietime.val());
+      $localStorage.pietime = JSON.stringify(pietime.val());
       console.log('Pietime updated');
       $scope.updateState();
       $scope.loading = false;
+      $scope.doRefresh();
+     
     });
   
     $scope.setTimer = (duration, countdown) => {
@@ -95,6 +95,7 @@ angular.module('app.controllers', [])
             if(countdown){
               duration--;
               if(duration == 0){
+                console.log('duration hit 0');
                 $scope.loading = true;
                 $timeout(()=>{
                   console.log('countdown finished');
@@ -134,9 +135,8 @@ angular.module('app.controllers', [])
                 callback: function (newDate) {
                   setTime(newDate, departTime => {
                     if(moment(arriveTime).isAfter(moment(departTime))){
-                      ionicToast.show('Error: Arrival cannot be after departure', 'bottom', false, 3);
-                    }else if(moment(arriveTime).isBefore(new moment())){
-                      ionicToast.show('Error: Arrival cannot be in the past', 'bottom', false, 3)
+                      console.log('Error: Arrival cannot be after departure');
+                      ionicToast.show('Error: Arrival cannot be after departure', 'bottom', false, 3000);
                     }else{
                       let time = {
                         notified: false,
@@ -348,6 +348,7 @@ angular.module('app.controllers', [])
       $scope.user = null;
     });
     
+  
     $scope.logout = function(){
       FB.logout();
       ionicToast.show('Logged Out!', 'bottom', false, 4000);

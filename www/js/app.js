@@ -7,13 +7,10 @@ angular.module(
     'app.services',
     'app.directives',
     'ionic-toast',
-    'nvd3',
     'firebase',
-    'angular-web-notification',
     'ngStorage',
     'ionic-timepicker',
-    'ionic-datepicker',
-    'pouchdb'
+    'ionic-datepicker'
   ])
   
   .run(function($ionicPlatform, FB) {

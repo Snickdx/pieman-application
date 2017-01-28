@@ -14,14 +14,10 @@ angular.module('app.routes', [])
         abstract:true
       })
   
-      .state('tabsController.pieManStatus', {
+      .state('pieManStatus', {
         url: '/status',
-        views: {
-          'tab1': {
-            templateUrl: 'templates/pieManStatus.html',
-            controller: 'pieManStatusCtrl'
-          }
-        }
+        templateUrl: 'templates/pieManStatus.html',
+        controller: 'pieManStatusCtrl'
       })
   
       .state('tabsController.piePolls', {
@@ -57,7 +53,7 @@ angular.module('app.routes', [])
 
       });
 
-    $urlRouterProvider.otherwise('/tabs/status')
+    $urlRouterProvider.otherwise('/status')
 
 
 

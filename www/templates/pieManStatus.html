@@ -1,5 +1,10 @@
 <ion-view title="Pie Man Status" id="page1" class=" ">
-  <ion-content  class="has-header" style="height: 90%">
+  <ion-content  class="has-header" style="height: 100%">
+
+    <ion-refresher
+      pulling-text="Pull to refresh..."
+      on-refresh="doRefresh()">
+    </ion-refresher>
 
     <div ng-show="loading" class="row row-center" style="height: 100%">
       <div class="col col-center">
@@ -8,27 +13,27 @@
       </div>
     </div>
 
-    <div ng-hide="loading" class="row" style="height: 100%">
-      <div class="col col-center col-100">
+    <div ng-hide="loading" class="row" style="height: 100%; padding-top: 2%">
+      <div class="col">
 
         <div ng-show="state == 'In SAC' " class="row">
           <div class="col col-100">
-            <h2 class="text-center">Pieman is in SAC</h2>
-            <h3 class="text-center">he is leaving in</h3>
+            <h3 class="text-center">Pieman is in SAC</h3>
+            <h4 class="text-center">he is leaving in</h4>
           </div>
         </div>
 
         <div ng-show="state == 'Left SAC'" class="row">
           <div class="col col-100">
-            <h1 class="text-center">Pieman has left SAC</h1>
-            <h2 class="text-center">he departed</h2>
+            <h3 class="text-center">Pieman has left SAC</h3>
+            <h4 class="text-center">he departed</h4>
           </div>
         </div>
 
         <div ng-show="state == 'Coming To SAC'" class="row">
           <div class="col col-100">
-            <h1 class="text-center">Pieman will be in SAC</h1>
-            <h2 class="text-center">arriving in</h2>
+            <h3 class="text-center">Pieman will be in SAC</h3>
+            <h4 class="text-center">arriving in</h4>
           </div>
         </div>
 
@@ -41,7 +46,7 @@
 
         <div class="row" ng-show="state == 'Left SAC'">
           <div class="col col-center col-100">
-            <h2 class="text-center">ago :'(</h2>
+            <h4 class="text-center">ago :'(</h4>
           </div>
         </div>
 
