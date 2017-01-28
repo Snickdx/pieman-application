@@ -11,6 +11,7 @@ angular.module(
     'firebase',
     'angular-web-notification',
     'ngStorage',
+    'circle.countdown',
     'ionic-timepicker',
     'ionic-datepicker',
     'pouchdb'

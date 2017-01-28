@@ -7,15 +7,15 @@
   "dependencies": {
     "angular-nvd3": "~1.0.8",
     "angularfire": "~2.0.1",
-    "firebase": "~3.2.1",
+    "firebase": "~3.6.6",
     "ionic-toast": "~0.4.1",
     "angular-web-notification": "^1.0.21",
     "ngstorage": "^0.3.11",
     "ionic-timepicker": "^0.6.0",
     "ionic-datepicker": "^1.2.1",
     "moment": "2.17.1",
-    "flipclock": "^0.7.7",
     "angular-pouchdb": "^5.0.0",
-    "pouchdb": "^6.1.1"
+    "pouchdb": "^6.1.1",
+    "angular-circle-countdown": "*"
   }
 }

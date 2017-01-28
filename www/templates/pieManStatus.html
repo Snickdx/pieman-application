@@ -1,6 +1,11 @@
 <ion-view title="Pie Man Status" id="page1" class=" ">
   <ion-content  class="has-header" style="height: 90%">
 
+    <ion-refresher
+      pulling-text="Pull to refresh..."
+      on-refresh="doRefresh()">
+    </ion-refresher>
+
     <div ng-show="loading" class="row row-center" style="height: 100%">
       <div class="col col-center">
         <ion-spinner class="col col-center text-center"></ion-spinner>
@@ -35,8 +40,7 @@
         <br>
 
         <div class="row">
-          <!--class="clock1 col col-50 col-offset-25" style="padding-left: 50px"-->
-            <div class="clock1" style="margin: auto; width:460px"></div>
+          <countdown time="duration" finish-callback="finished()"></countdown>
         </div>
 
         <div class="row" ng-show="state == 'Left SAC'">

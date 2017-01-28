@@ -1,12 +1,12 @@
 //TODO ping pieman
-//TODO show online status and refresh
-//TODO online status on background
+//TODO pieman online status on background
 //TODO add to homescreen button
 //TODO add update status and button
 //TODO notifications info page
+//TODO background sync show last update time
 angular.module('app.controllers', [])
   
-  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, pouchDB, $localStorage){
+  .controller('pieManStatusCtrl', function($scope, ionicToast, FB, $location, $timeout, ionicTimePicker, ionicDatePicker, pouchDB, $localStorage, $state){
     
     $scope.userData = FB.getUserData();
     
@@ -24,6 +24,8 @@ angular.module('app.controllers', [])
     
     $scope.loading = true;
     
+    $scope.duration = 100;
+    
     let pdb = pouchDB('pieman');
     
     if($localStorage.cacheId != undefined){
@@ -35,7 +37,11 @@ angular.module('app.controllers', [])
     }else{
       console.log('no cache present');
     }
-  
+    
+    $scope.doRefresh = ()=>{
+      $state.reload();
+      $scope.$broadcast('scroll.refreshComplete');
+    };
  
     $scope.replicate = function(obj) {
       pdb.post(obj).then(res=>{
@@ -87,26 +93,7 @@ angular.module('app.controllers', [])
     });
   
     $scope.setTimer = (duration, countdown) => {
-      
-      $('.clock1').FlipClock( duration, {
-        countdown: countdown,
-        callbacks: {
-          interval: ()=>{
-            if(countdown){
-              duration--;
-              if(duration == 0){
-                $scope.loading = true;
-                $timeout(()=>{
-                  console.log('countdown finished');
-                  $scope.updateState();
-                  $scope.loading = false;
-                }, 3000);
-              }
-            }
-          }
-        }
-      });
-    
+      $scope.duration = countdown ? duration : 999999;
     };
     
     function setTime(newDate, callback){
