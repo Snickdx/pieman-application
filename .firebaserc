@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "pieman-d47da"
+    "default": "pieman-d47da",
+    "pieman": "pieman-d47da"
   }
 }

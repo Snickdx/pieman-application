@@ -5,7 +5,7 @@
     "ionic": "driftyco/ionic-bower#1.3.1"
   },
   "dependencies": {
-    "angularfire": "~2.0.1",
+    "angularfire": "~2.3.0",
     "firebase": "~3.6.6",
     "ionic-toast": "~0.4.1",
     "ngstorage": "^0.3.11",
@@ -13,5 +13,8 @@
     "ionic-datepicker": "^1.2.1",
     "moment": "2.17.1",
     "flipclock": "^0.7.7"
+  },
+  "resolutions": {
+    "angularfire": "~2.3.0"
   }
 }

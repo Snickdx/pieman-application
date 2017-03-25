@@ -13,7 +13,7 @@ angular.module('app.services', [])
     
     const config = {
       apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
-      authDomain: "pieman-d47da.firebaseapp.com",
+      authDomain: "https://pieman.online",
       databaseURL: "https://pieman-d47da.firebaseio.com",
       storageBucket: "pieman-d47da.appspot.com",
       messagingSenderId: "371107496995"
@@ -24,6 +24,8 @@ angular.module('app.services', [])
     const msg = firebase.messaging();
     
     const auth = $firebaseAuth();
+  
+    const fbAuth = new firebase.auth.FacebookAuthProvider();
     
     const db = firebase.database();
     
@@ -157,6 +159,10 @@ angular.module('app.services', [])
     
     obj.userData = null;
     
+    obj.token = null;
+    
+    obj.user = null;
+    
     obj.isAuth = function(){};
     
     obj.getAuthData = function(){
@@ -174,11 +180,26 @@ angular.module('app.services', [])
     };
     
     obj.FBlogin = function(){
-      auth.$signInWithRedirect(new firebase.auth.FacebookAuthProvider()).catch(err=>{
+      // firebase.auth().signInWithRedirect(new firebase.auth.FacebookAuthProvider());
+      // firebase.auth().getRedirectResult().then(function(result) {
+      //   if (result.credential) {
+      //     obj.token = result.credential.accessToken;
+      //   }
+      //   obj.user = result.user;
+      // }).catch(function(error) {
+      //   ionicToast.show('Error singing in ', 'bottom', false, 4000);
+      //   console.error(error.code, error.message, error.email, error.credential);
+      // });
+      firebase.auth().signInWithPopup(new firebase.auth.FacebookAuthProvider()).then(function(result) {
+        if (result.credential) {
+          obj.token = result.credential.accessToken;
+        }
+        obj.user = result.user;
+      }).catch(function(error) {
         ionicToast.show('Error singing in ', 'bottom', false, 4000);
-        console.log(err);
+        console.error(error.code, error.message, error.email, error.credential);
       });
- 
+  
     };
     
     obj.checkAuth = function(){
@@ -214,14 +235,12 @@ angular.module('app.services', [])
     };
     
     obj.logout = function(){
-      try {
-        auth.$signOut();
+      firebase.auth().signOut().then(function() {
         obj.auth = null;
         return $q.when({ status : 0});
-      }
-      catch(error) {
+      }).catch(function(error) {
         return $q.when({status: -1, error: error});
-      }
+      });
     };
     
     
