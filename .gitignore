@@ -18,3 +18,4 @@ platforms
 
 /firebase-debug.log
 /PieNotify/node_modules/
+/public/lib/

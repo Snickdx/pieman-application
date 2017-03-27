@@ -1,8 +1,7 @@
 //TODO ping pieman
 //TODO show online status and refresh
 //TODO online status on background
-//TODO add to homescreen button
-//TODO notifications info page
+//TODO notifications info modal
 //TODO global config to show updates
 angular.module('app.controllers', [])
   
