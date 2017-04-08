@@ -89,6 +89,10 @@ angular.module('app.controllers', [])
         return moment(time).format(' DD MMM YYYY hh:mm:ss A');
       };
       
+      $scope.format = (time) => {
+        return moment(time).format(' MMMM D, YYYY hh:mm:ss')
+      };
+      
       FB.onChange('/pietime', 'value', pietime => {
         $scope.pietime = pietime.val();
         $localStorage.pietime = JSON.stringify(pietime.val());
