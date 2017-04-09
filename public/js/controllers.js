@@ -103,30 +103,6 @@ angular.module('app.controllers', [])
         
       });
       
-      $scope.setTimer = (duration, countdown) => {
-        
-        // $('.clock').FlipClock( duration, {
-        //   countdown: countdown,
-        //   callbacks: {
-        //     interval: ()=>{
-        //       if(countdown){
-        //         duration--;
-        //         if(duration == 0){
-        //           console.log('duration hit 0');
-        //           $scope.loading = true;
-        //           $timeout(()=>{
-        //             console.log('countdown finished');
-        //             $scope.updateState();
-        //             $scope.loading = false;
-        //           }, 3000);
-        //         }
-        //       }
-        //     }
-        //   }
-        // });
-        
-      };
-      
       function setTime(newDate, callback){
         ionicTimePicker.openTimePicker({
           callback: function (newTime) {
