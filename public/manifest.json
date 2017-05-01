@@ -1,6 +1,6 @@
 {
-  "name": "Whey Pieman?",
-  "short_name": "Whey Pieman?",
+  "name": "The Pieman Application",
+  "short_name": "Pieman App",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#11c1f3",
