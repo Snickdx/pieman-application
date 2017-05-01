@@ -2,13 +2,6 @@ angular.module('app.services', [])
   
   .factory('FB', ['ionicToast', '$http', '$firebaseAuth', '$firebaseArray', '$firebaseObject', '$q', '$rootScope', '$localStorage', function(ionicToast, $http, $firebaseAuth, $firebaseArray, $firebaseObject, $q, $rootScope, $localStorage){
     
-    function successCallback(res){
-      console.log(res);
-    }
-    
-    function errorCallback(err){
-      console.log(err);
-    }
     
     const config = {
       apiKey: "AIzaSyCeKNfcnlIkYrdr2a0qA1QC0nZYdhoyOng",
@@ -23,8 +16,8 @@ angular.module('app.services', [])
     const msg = firebase.messaging();
     
     const auth = $firebaseAuth();
-    
-    const fbAuth = new firebase.auth.FacebookAuthProvider();
+  
+    const key = "AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA";
     
     const db = firebase.database();
     
@@ -64,27 +57,25 @@ angular.module('app.services', [])
     };
     
     //***********************************Cloud Messaging***************************************
-    
+  
     obj.deleteToken = () => {
-      obj.set('/registrations/general/'+$localStorage.tokenKey, null);
+      obj.set('/subscriptions/pieman/'+$localStorage.token, null);
       console.log('Notifications Disabled!');
       ionicToast.show('Notifications Disabled!', 'bottom', false, 4000);
+      msg.deleteToken($localStorage.savedToken);
       delete $localStorage.savedToken;
-      delete $localStorage.tokenKey;
     };
-    
+  
     obj.saveToken = token => {
       $localStorage.savedToken = token;
-      let ref = obj.pushKey('/registrations/general');
-      $localStorage.tokenKey = ref.key;
-      ref.set(token);
-      
+      obj.set(`/subscriptions/pieman/${token}`, true);
+    
       $http({
           method: 'POST',
-          url: `https://iid.googleapis.com/iid/v1/${token}/rel/topics/general`,
+          url: `https://iid.googleapis.com/iid/v1/${token}/rel/topics/pieman`,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization':'key=AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA'
+            'Authorization':`key=${key}`
           }
         },
         response => {
@@ -93,8 +84,8 @@ angular.module('app.services', [])
         err => {
           console.log(err);
         });
-      
-      console.log("Messaging token saved at "+ref.key);
+    
+      console.log("Messaging token saved "+token);
     };
     
     obj.isMsgEnabled = () => {

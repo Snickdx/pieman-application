@@ -5,45 +5,52 @@ angular.module('app.controllers', [])
     'ionicToast',
     'FB',
     '$location',
-    '$timeout',
+    '$interval',
     'ionicTimePicker',
     'ionicDatePicker' ,
     '$localStorage',
     '$state',
+    '$ionicModal',
     function (
       $scope,
       ionicToast,
       FB,
       $location,
-      $timeout,
+      $interval,
       ionicTimePicker,
       ionicDatePicker,
       $localStorage,
-      $state
+      $state,
+      $ionicModal
     ) {
       $scope.userData = FB.getUserData();
       
-      $scope.$on('loggedIn', function() {
-        $scope.userData = FB.getUserData();
-      });
-      
-      $scope.$on('noAuth', function() {
-        $scope.userData = null;
-      });
-      
       $scope.time = {};
+      
+      $scope.loggedIn = $localStorage.loggedIn != undefined;
+      
+      $scope.modal = {};
+      
+      $scope.passcode = null;
       
       $scope.state = null;
       
+      $scope.counter = null;
+      
+      $scope.notifications = FB.isMsgEnabled();
+      
       $scope.loading = true;
       
-      $scope.doRefresh = ()=>{
+      $scope.doRefresh = () =>{
         FB.get('pietime').then(pietime=>{
           $scope.pietime = pietime;
           $localStorage.pietime = JSON.stringify(pietime);
           $scope.updateState();
           $state.reload();
           $scope.$broadcast('scroll.refreshComplete');
+          $interval(()=>{
+            $scope.updateState();
+          }, 1000);
         });
       };
       
@@ -60,37 +67,24 @@ angular.module('app.controllers', [])
         let arrive = moment($scope.pietime.arrive);
         let depart = moment($scope.pietime.depart);
         let now = new moment();
-        let duration= 0;
-        let countdown = null;
+        let toArrive = now.diff(arrive);
+        let toDepart = now.diff(depart);
         
         if(arrive.isBefore(now) && depart.isAfter(now)){
-          $scope.state = 'In SAC';
-          duration = depart.diff(now, 'seconds');
-          countdown = true;
+          $scope.state = 'Pieman is in SAC \nLeaving in';
+          $scope.countdown = moment.duration(toDepart, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }else if(arrive.isBefore(now) && depart.isBefore(now)){
-          $scope.state = 'Left SAC';
-          duration = now.diff(depart, 'seconds');
-          countdown = false;
+          $scope.state = 'Pieman has left SAC \nHe Departed';
+          $scope.countdown = moment.duration(toDepart, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]")+"\n Ago";
         }else if(arrive.isAfter(now) && depart.isAfter(now)){
-          $scope.state = 'Coming To SAC';
-          duration = arrive.diff(now, 'seconds');
-          countdown = true;
+          $scope.state = 'Pieman is coming To SAC \nin';
+          $scope.countdown = moment.duration(toArrive, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }
-        
-        console.log($scope.state, duration);
-        console.log($scope.pretty(arrive));
-        console.log($scope.pretty(depart));
-        console.log($scope.pretty(now));
-        $scope.setTimer(duration, countdown);
         
       };
       
       $scope.pretty = (time) => {
         return moment(time).format(' DD MMM YYYY hh:mm:ss A');
-      };
-      
-      $scope.format = (time) => {
-        return moment(time).format(' MMMM D, YYYY hh:mm:ss')
       };
       
       FB.onChange('/pietime', 'value', pietime => {
@@ -117,7 +111,7 @@ angular.module('app.controllers', [])
         });
       }
       
-      $scope.setTime = () => {
+      $scope.updateTime = () => {
         
         ionicDatePicker.openDatePicker({
           callback: function (newDate) {
@@ -149,6 +143,44 @@ angular.module('app.controllers', [])
           templateType: 'modal'
         });
         
+      };
+      
+      $scope.login = (passcode) => {
+        FB.get('/passcode').then(code => {
+          if(code == passcode){
+            console.log('logged in');
+            $scope.loggedIn = true;
+            $localStorage.loggedIn = true;
+          }else{
+            console.log('login failed', code == passcode, code, passcode);
+          }
+          $scope.modal.hide();
+        });
+        
+      };
+  
+      $ionicModal.fromTemplateUrl('templates/modal.html', {
+        scope: $scope
+      }).
+      then(function(modal) {
+        $scope.modal = modal;
+      });
+  
+      $scope.toggleNotifications = () => {
+        if(!$scope.notifications){
+          FB.enableMessaging(
+            ()=>{
+              console.log('notifications enabled');
+              $scope.notifcations=true;
+            },
+            ()=>{
+              console.log('notifications not supported');
+            }
+          );
+        }else{
+          FB.deleteToken();
+          $scope.notifications = false;
+        }
       };
       
     }]);

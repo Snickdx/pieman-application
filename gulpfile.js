@@ -52,12 +52,31 @@ gulp.task('git-check', function(done) {
 gulp.task('generate-service-worker', function(callback) {
   var path = require('path');
   var swPrecache = require('sw-precache');
-  var rootDir = 'www';
+  var rootDir = 'public';
   
   swPrecache.write(
     path.join(rootDir, 'service-worker.js'),
     {
-      staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,jpg,gif,svg,eot,ttf,woff}'],
+      staticFileGlobs: [
+        rootDir + 'public/**/*.{html,png,jpg,gif,svg,eot,ttf,woff}',
+        'public/fonts/roboto/css/fonts.css',
+        'public/lib/ionic/js/ionic.bundle.js',
+        'public/css/ionic.app.css',
+        'public/lib/moment/min/moment.min.js',
+        'public/lib/firebase/firebase.js',
+        'public/lib/firebase/firebase-messaging.js',
+        'public/lib/angularfire/dist/angularfire.min.js',
+        'public/lib/ionic-toast/dist/ionic-toast.bundle.min.js',
+        'public/lib/ngstorage/ngStorage.min.js',
+        'public/lib/ionic-timepicker/dist/ionic-timepicker.bundle.min.js',
+        'public/lib/ionic-datepicker/dist/ionic-datepicker.bundle.min.js',
+        'public/node_modules/moment-duration-format/lib/moment-duration-format.js',
+        'public/js/app.js',
+        'public/js/controllers.js',
+        'public/js/routes.js',
+        'public/js/directives.js',
+        'public/js/services.js'
+      ],
       stripPrefix: rootDir,
       importScripts: [
         'lib/firebase/firebase.js',

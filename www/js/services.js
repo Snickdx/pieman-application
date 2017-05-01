@@ -19,13 +19,14 @@ angular.module('app.services', [])
       messagingSenderId: "371107496995"
     };
     
+    const key = "AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA";
+    
     firebase.initializeApp(config);
     
     const msg = firebase.messaging();
     
     const auth = $firebaseAuth();
-  
-    const fbAuth = new firebase.auth.FacebookAuthProvider();
+    
     
     const db = firebase.database();
     
@@ -67,25 +68,23 @@ angular.module('app.services', [])
     //***********************************Cloud Messaging***************************************
     
     obj.deleteToken = () => {
-      obj.set('/registrations/general/'+$localStorage.tokenKey, null);
+      obj.set('/subscriptions/pieman/'+$localStorage.token, null);
       console.log('Notifications Disabled!');
       ionicToast.show('Notifications Disabled!', 'bottom', false, 4000);
+      msg.deleteToken($localStorage.savedToken);
       delete $localStorage.savedToken;
-      delete $localStorage.tokenKey;
     };
     
     obj.saveToken = token => {
       $localStorage.savedToken = token;
-      let ref = obj.pushKey('/registrations/general');
-      $localStorage.tokenKey = ref.key;
-      ref.set(token);
+      obj.set(`/subscriptions/pieman/${token}`, true);
       
       $http({
           method: 'POST',
-          url: `https://iid.googleapis.com/iid/v1/${token}/rel/topics/general`,
+          url: `https://iid.googleapis.com/iid/v1/${token}/rel/topics/pieman`,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization':'key=AAAAVme7BCM:APA91bG6U_DiXeCzduJmKjy8v733skiVVbMDtm6o-6pfw97H5Xw9HpC8YaZFiu8Xe-1wF1wCL2gTvVyc7AxrYPdX6d4p_6FURGlzDsOKSoMoADprUsERE3wgLHgupKCwYgcu86qLmh0lpUnrCidKwG5QuncBCplXSA'
+            'Authorization':`key=${key}`
           }
         },
         response => {
@@ -95,7 +94,7 @@ angular.module('app.services', [])
           console.log(err);
         });
       
-      console.log("Messaging token saved at "+ref.key);
+      console.log("Messaging token saved "+token);
     };
     
     obj.isMsgEnabled = () => {

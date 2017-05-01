@@ -25,7 +25,9 @@ angular.module('app', [
 
 })
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, FB) {
+  
+  FB.registerSW();
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)

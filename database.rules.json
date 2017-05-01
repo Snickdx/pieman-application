@@ -7,6 +7,10 @@
       ".read":true,
       ".write":true
     },
+    "passcode": {
+      ".read":true,
+      ".write":false
+    },
     "feed":{
       ".indexOn":"time",
       ".read":true,

@@ -1,6 +1,48 @@
+<style>
+  .ionic_timepicker_popup .button_set,
+  .ionic_timepicker_popup .button_close,
+  .ionic_timepicker_popup .heading {
+    background-color: #6b46e5;
+    color: #ffffff;
+  }
+
+  .ionic_datepicker_modal .today {
+    border: 1px solid #6b46e5;;
+  }
+
+  .ionic_datepicker_modal .header,
+  .ionic_datepicker_modal .footer,
+  .ionic_datepicker_modal .selected_date{
+    background-color: #11c1f3;
+  }
+
+  .ionic_datepicker_modal .button-clear {
+    color: #009688;
+  }
+
+  .ionic_datepicker_modal .month_select, .ionic_datepicker_modal .year_select {
+    border: none;
+    border-bottom: 1px solid #11c1f3;
+    padding: 0;
+  }
+
+  .ionic_datepicker_modal .month_select, .ionic_datepicker_modal .year_select {
+    border: none;
+    border-bottom: 1px solid #11c1f3;
+    padding: 0;
+  }
+  .ionic_datepicker_modal .button-clear {
+    color: #11c1f3;
+  }
+
+  .ionic_datepicker_modal .selected_date {
+    background-color: #11c1f3;
+  }
+</style>
+
 <ion-view title="Pieman Status" id="page1" style="background-color:#8577B1;">
   <ion-nav-buttons side="left" class="has-header">
-    <button class="button button-icon icon ion-android-lock"></button>
+    <button class="button button-icon icon ion-android-lock" ng-click="modal.show()"></button>
   </ion-nav-buttons>
   <ion-content padding="true" class="has-header">
 
@@ -17,60 +59,43 @@
       </div>
     </div>
 
-    <div ng-show="state == 'Left SAC'" class="row time-to text-center light">
-      <div class="col col-100">
-        <h1 class="text-center light">Pieman has left SAC</h1>
-        <h2 class="text-center light">he departed</h2>
-        <h1 class="text-center light"><span countdown='' date={{format(pietime.arrive)}}>&nbsp;</span></h1>
-        <h2 class="light">Ago</h2>
+    <div ng-hide="loading" class="row" style="height: 100%; padding-top: 2%">
+      <div class="col">
+        <div class="row time-to text-center light">
+          <div class="col col-100">
+            <h1 class="text-center light">{{state}}</h1>
+            <h1 class="text-center light">{{countdown}}</h1>
+          </div>
+        </div>
+
+        <div class="row row-baseline">
+          <div class="col col-80 col-center col-offset-10">
+            <button class="button button-full button-calm" ng-show="loggedIn" ng-click="updateTime()">Set Time</button>
+            <ion-toggle ng-model="notifications" ng-change="toggleNotifications()" class="toggle-calm" toggle-class="toggle-calm">Enable Notifications</ion-toggle>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!--<div ng-hide="loading" class="row" style="height: 100%; padding-top: 2%">-->
-      <!--<div class="col">-->
 
-        <!--<div ng-show="state == 'In SAC' " class="row">-->
-          <!--<div class="col col-100">-->
-            <!--<h3 class="text-center">Pieman is in SAC</h3>-->
-            <!--<h4 class="text-center">he is leaving in</h4>-->
-          <!--</div>-->
-        <!--</div>-->
-
-        <!--<div ng-show="state == 'Left SAC'" class="row stable">-->
-          <!--<div class="col col-100">-->
-            <!--<h3 class="text-center">Pieman has left SAC</h3>-->
-            <!--<h4 style="margin-top: 3%" class="text-center">he departed</h4>-->
-            <!--<div class="text-center time-to padding margin">-->
-              <!--<span countdown='' date={{format(pietime.arrive)}}>&nbsp;</span>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-
-        <!--<div ng-show="state == 'Coming To SAC'" class="row">-->
-          <!--<div class="col col-100">-->
-            <!--<h3 class="text-center">Pieman will be in SAC</h3>-->
-            <!--<h4 class="text-center">arriving in</h4>-->
-          <!--</div>-->
-        <!--</div>-->
-
-
-        <!--<div class="row" ng-show="state == 'Left SAC'">-->
-          <!--<div class="col col-center col-100">-->
-            <!--<h4 class="text-center">ago :'(</h4>-->
-          <!--</div>-->
-        <!--</div>-->
-
-        <!--<div class="row row-baseline col-center" ng-hide="userData.type != 'pieman'">-->
-
-          <!--<div class="col col-80 col-center col-offset-10">-->
-            <!--<a ng-click="setTime()" id="pieManStatus-button4" class=" button button-royal button-large button-block icon-right">Update</a>-->
-
-            <!--&lt;!&ndash;<a ng-click="setTimer(30, true)" class=" button button-royal button-large button-block icon-right">Count</a>&ndash;&gt;-->
-          <!--</div>-->
-
-        <!--</div>-->
-
-      <!--</div>-->
-    <!--</div>-->
   </ion-content>
 </ion-view>
+
+<script id="templates/modal.html" type="text/ng-template">
+  <ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-royal">
+      <h1 class="title">Pieman Login</h1>
+      <button class="button button-clear" ng-click="modal.hide()">Cancel</button>
+    </ion-header-bar>
+    <ion-content class="padding">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Passcode</span>
+          <input ng-model="passcode" type="password">
+        </label>
+        <button class="button button-full button-calm" ng-click="login(passcode)">Login</button>
+      </div>
+    </ion-content>
+  </ion-modal-view>
+</script>

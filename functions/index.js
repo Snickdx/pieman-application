@@ -7,7 +7,6 @@ admin.initializeApp(functions.config().firebase);
 
 exports.sendFollowerNotification = functions.database.ref('{pietime}').onWrite(event => {
   const pietime = event.params.pietime;
-  console.log(event.params.pietime);
   let payload = {
     "notification": {
       "title": "Notipy Notification",
@@ -21,7 +20,7 @@ exports.sendFollowerNotification = functions.database.ref('{pietime}').onWrite(e
     "priority": "high"
   };
   
-  let topic = "general";
+  let topic = "pieman";
   
   admin.messaging().sendToTopic(topic, payload, options)
     .then(function(response) {
