@@ -3,8 +3,8 @@
   "short_name": "Whey Pieman?",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "white",
-  "theme_color": "#8577B1",
+  "background_color": "#11c1f3",
+  "theme_color": "#11c1f3",
   "orientation": "portrait",
   "gcm_sender_id":"103953800507",
   "icons": [

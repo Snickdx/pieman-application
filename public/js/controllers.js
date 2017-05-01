@@ -1,3 +1,8 @@
+//TODO: Pietime background sync
+//TODO: Schedule notificaion in background
+//TODO: Proper Caching with sw-precache
+//TODO: Send updated pietime as data message
+
 angular.module('app.controllers', [])
   
   .controller('piemanStatusCtrl', [

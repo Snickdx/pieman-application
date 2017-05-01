@@ -58,7 +58,7 @@ gulp.task('generate-service-worker', function(callback) {
     path.join(rootDir, 'service-worker.js'),
     {
       staticFileGlobs: [
-        rootDir + 'public/**/*.{html,png,jpg,gif,svg,eot,ttf,woff}',
+        'public/**/*.{html,png,jpg,gif,svg,eot,ttf,woff}',
         'public/fonts/roboto/css/fonts.css',
         'public/lib/ionic/js/ionic.bundle.js',
         'public/css/ionic.app.css',
