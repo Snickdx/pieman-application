@@ -11,11 +11,14 @@ exports.sendFollowerNotification = functions.database.ref('{pietime}').onWrite(e
   let payload = {
     "notification": {
       "title": "Notipy Notification",
-      "body": "Pieman will be in SAC @ "+moment(pietime.arrive).add(4, 'h').format("HH:mm:ss A"),
+      "body": "Pieman will be in SAC @ "+moment(pietime.arrive).format("hh:mm:ss A"),
       "click_action" : "https://pieman.online",
       "icon": "https://firebasestorage.googleapis.com/v0/b/pieman-d47da.appspot.com/o/pieman-144.png?alt=media&token=fae111b6-3ddf-4552-a17d-9e911090977b"
     },
-    "data": pietime
+    "data": {
+      "arrive":`${pietime.arrive}`,
+      "depart":`${pietime.depart}`
+    }
   };
 
   let options = {
