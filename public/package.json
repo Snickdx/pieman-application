@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "moment-duration-format": "^1.3.0"
+    "moment-duration-format": "^1.3.0",
+    "sw-toolbox": "^3.6.0"
   }
 }

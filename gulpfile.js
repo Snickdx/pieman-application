@@ -82,6 +82,16 @@ gulp.task('generate-service-worker', function(callback) {
         'lib/firebase/firebase.js',
         'js/FCMScript.js'
       ],
+      // runtimeCaching: [{
+      //   urlPattern: "https://pieman-d47da.firebaseio.com/pietime.json",
+      //   handler: 'fastest',
+      //   options: {
+      //     cache: {
+      //       maxEntries: 10,
+      //       name: 'pie-cache'
+      //     }
+      //   }
+      // }]
     },
     callback
   );

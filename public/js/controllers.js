@@ -1,15 +1,16 @@
-//TODO: Pietime background sync
-//TODO: Schedule notificaion in background
+//TODO: Pietime background sync remove onchange listener
+//TODO: Schedule notification in background
 //TODO: Proper Caching with sw-precache
 //TODO: Send updated pietime as data message
+//TODO: Show Updated and install
 
 angular.module('app.controllers', [])
   
   .controller('piemanStatusCtrl', [
     '$scope',
     'ionicToast',
-    'FB',
-    '$location',
+    'Database',
+    'Messaging',
     '$interval',
     'ionicTimePicker',
     'ionicDatePicker' ,
@@ -19,8 +20,8 @@ angular.module('app.controllers', [])
     function (
       $scope,
       ionicToast,
-      FB,
-      $location,
+      Database,
+      Messaging,
       $interval,
       ionicTimePicker,
       ionicDatePicker,
@@ -28,7 +29,6 @@ angular.module('app.controllers', [])
       $state,
       $ionicModal
     ) {
-      $scope.userData = FB.getUserData();
       
       $scope.time = {};
       
@@ -38,16 +38,20 @@ angular.module('app.controllers', [])
       
       $scope.passcode = null;
       
-      $scope.state = null;
+      $scope.output = {
+        countdown : null,
+        state: null,
+        loading: true
+      };
       
-      $scope.counter = null;
+      $scope.input = {
+        notifications : Messaging.isEnabled(),
+        passcode : null
+      };
       
-      $scope.notifications = FB.isMsgEnabled();
-      
-      $scope.loading = true;
       
       $scope.doRefresh = () =>{
-        FB.get('pietime').then(pietime=>{
+        Database.get('pietime').then(pietime=>{
           $scope.pietime = pietime;
           $localStorage.pietime = JSON.stringify(pietime);
           $scope.updateState();
@@ -61,11 +65,15 @@ angular.module('app.controllers', [])
       
       if($localStorage.pietime != undefined){
         $scope.pietime = JSON.parse($localStorage.pietime);
-        $scope.loading = false;
+        $scope.output.loading = false;
         console.log('Loaded from cache');
       }else{
         console.log('no cache present');
       }
+      
+      Messaging.onMessage(payload=>{
+        ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
+      });
       
       $scope.updateState = () => {
         
@@ -76,14 +84,14 @@ angular.module('app.controllers', [])
         let toDepart = now.diff(depart);
         
         if(arrive.isBefore(now) && depart.isAfter(now)){
-          $scope.state = 'Pieman is in SAC \nLeaving in';
-          $scope.countdown = moment.duration(toDepart, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
+          $scope.output.state = 'Pieman is in SAC \nLeaving in';
+          $scope.output.countdown = moment.duration(toDepart, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }else if(arrive.isBefore(now) && depart.isBefore(now)){
-          $scope.state = 'Pieman has left SAC \nHe Departed';
-          $scope.countdown = moment.duration(toDepart, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]")+"\n Ago";
+          $scope.output.state = 'Pieman has left SAC \nHe Departed';
+          $scope.output.countdown = moment.duration(toDepart, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]")+"\n Ago";
         }else if(arrive.isAfter(now) && depart.isAfter(now)){
-          $scope.state = 'Pieman is coming To SAC \nin';
-          $scope.countdown = moment.duration(toArrive, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
+          $scope.output.state = 'Pieman is coming To SAC \nin';
+          $scope.output.countdown = moment.duration(toArrive, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }
         
       };
@@ -92,12 +100,12 @@ angular.module('app.controllers', [])
         return moment(time).format(' DD MMM YYYY hh:mm:ss A');
       };
       
-      FB.onChange('/pietime', 'value', pietime => {
+      Database.onChange('/pietime', 'value', pietime => {
         $scope.pietime = pietime.val();
         $localStorage.pietime = JSON.stringify(pietime.val());
         console.log('Pietime updated');
         $scope.updateState();
-        $scope.loading = false;
+        $scope.output.loading = false;
         $scope.doRefresh();
         
       });
@@ -131,11 +139,10 @@ angular.module('app.controllers', [])
                       ionicToast.show('Error: Arrival cannot be after departure', 'bottom', false, 3000);
                     }else{
                       let time = {
-                        notified: false,
                         arrive: arriveTime,
                         depart: departTime
                       };
-                      FB.update(`/pietime`, time);
+                      Database.update(`/pietime`, time);
                     }
                   });
                 },
@@ -151,7 +158,7 @@ angular.module('app.controllers', [])
       };
       
       $scope.login = (passcode) => {
-        FB.get('/passcode').then(code => {
+        Database.get('/passcode').then(code => {
           if(code == passcode){
             console.log('logged in');
             $scope.loggedIn = true;
@@ -172,20 +179,34 @@ angular.module('app.controllers', [])
       });
   
       $scope.toggleNotifications = () => {
-        if(!$scope.notifications){
-          FB.enableMessaging(
-            ()=>{
-              console.log('notifications enabled');
-              $scope.notifcations=true;
+        
+        if($scope.input.notifications){
+
+          Messaging.enableMessaging(
+            token =>{
+              console.log('Token Created', token);
+
+              Messaging.subscribeToTopic(token, "pieman", response =>{
+                Database.set(`subscriptions/pieman/${token}`, true);
+                console.log('subscribed to pieman notifications', response);
+                ionicToast.show("Notifications Enabled!", 'bottom', false, 2000);
+
+              });
+
             },
-            ()=>{
-              console.log('notifications not supported');
+            () =>{
+              console.log('got error from service');
+              ionicToast.show("Error Enabling Notifications", 'bottom', false, 2000);
             }
           );
         }else{
-          FB.deleteToken();
-          $scope.notifications = false;
+          console.log('disabling notifications');
+          Messaging.disableMessaging(oldToken=>{
+            Database.set(`subscriptions/pieman/${oldToken}`, null);
+          });
+          ionicToast.show("Notifications Disabled!", 'bottom', false, 2000);
         }
+        
       };
       
     }]);

@@ -38,6 +38,12 @@
   .ionic_datepicker_modal .selected_date {
     background-color: #11c1f3;
   }
+
+  .item-toggle, .item-toggle.item-complex .item-content {
+    background-color: #11c1f3;
+    border-color: #11c1f3;
+    color: white;
+  }
 </style>
 
 <ion-view title="Pieman Status" id="page1" style="background-color:#8577B1;">
@@ -52,26 +58,26 @@
     </ion-refresher>
 
 
-    <div ng-show="loading" class="row row-center" style="height: 100%">
+    <div ng-show="output.loading" class="row row-center" style="height: 100%">
       <div class="col col-center">
         <ion-spinner class="col col-center text-center"></ion-spinner>
-        <h1 class="text-center">Loading</h1>
+        <h1 class="text-center">loading</h1>
       </div>
     </div>
 
-    <div ng-hide="loading" class="row" style="height: 100%; padding-top: 2%">
+    <div ng-hide="output.loading" class="row" style="height: 100%; padding-top: 2%">
       <div class="col">
         <div class="row time-to text-center light">
           <div class="col col-100">
-            <h1 class="text-center light">{{state}}</h1>
-            <h1 class="text-center light">{{countdown}}</h1>
+            <h1 class="text-center light">{{output.state}}</h1>
+            <h1 class="text-center light">{{output.countdown}}</h1>
           </div>
         </div>
 
         <div class="row row-baseline">
           <div class="col col-80 col-center col-offset-10">
             <button class="button button-full button-calm" ng-show="loggedIn" ng-click="updateTime()">Set Time</button>
-            <ion-toggle ng-model="notifications" ng-change="toggleNotifications()" class="toggle-calm" toggle-class="toggle-calm">Enable Notifications</ion-toggle>
+            <ion-toggle ng-model="input.notifications" ng-change="toggleNotifications()" class="toggle-calm" toggle-class="toggle-royal">Enable Notifications</ion-toggle>
           </div>
         </div>
 
@@ -92,9 +98,9 @@
       <div class="list">
         <label class="item item-input">
           <span class="input-label">Passcode</span>
-          <input ng-model="passcode" type="password">
+          <input ng-model="input.passcode" type="password">
         </label>
-        <button class="button button-full button-calm" ng-click="login(passcode)">Login</button>
+        <button class="button button-full button-calm" ng-click="login(input.passcode)">Login</button>
       </div>
     </ion-content>
   </ion-modal-view>
