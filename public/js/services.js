@@ -22,32 +22,41 @@
       const msg = firebase.messaging();
       
       service.registerSW = () => {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('service-worker.js').then(function(reg) {
-        
-            msg.useServiceWorker(reg);
-            reg.onupdatefound = function() {
-          
-              let installingWorker = reg.installing;
-          
-              installingWorker.onstatechange = function() {
-                switch (installingWorker.state) {
-                  case 'installed':
-                    if (navigator.serviceWorker.controller) {
-                      console.log('New or updated content is available.');
-                    } else {
-                      console.log('Content is now available offline!');
-                    }
-                    break;
-                  case 'redundant':
-                    console.error('The installing service worker became redundant.');
-                    break;
-                }
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(reg => {
+              msg.useServiceWorker(reg);
+              reg.onupdatefound = () => {
+            
+                let installingWorker = reg.installing;
+            
+                installingWorker.onstatechange = function() {
+                  switch (installingWorker.state) {
+                    case 'installed':
+                      if (navigator.serviceWorker.controller) {
+                        console.log('New or updated content is available.');
+                      } else {
+                        console.log('Content is now available offline!');
+                      }
+                      break;
+                    case 'redundant':
+                      console.error('The installing service worker became redundant.');
+                      break;
+                  }
+                };
+                
               };
-            };
-          }).catch(function(e) {
-            console.error('Error during service worker registration:', e);
-          });
+              
+              navigator.serviceWorker.ready.then(function(reg) {
+                return reg.sync.register('pietime-fetch');
+              });
+              
+            })
+            .catch(function(e) {
+              console.error('Error during service worker registration:', e);
+            });
+  
+          
         }
       };
       
@@ -159,6 +168,11 @@
       service.getList = function(child){
     
       };
+      
+      service.getTime = callback =>{
+        service.set('/time', firebase.database.ServerValue.TIMESTAMP);
+        callback();
+      };
   
       service.onChange = function(child, type, callback){
         return db.ref(child).on(type, snapshot => {
@@ -192,7 +206,14 @@
   
       return service;
       
-    }])
+    }]);
+  
+    // let w = new Worker('service-worker.js');
+    // w.onmessage = function(event) {
+    //   console.log('on message received');
+    //   localStorage.setItem('pietime', event.data);
+    //   localStorage.setItem('background', 'true');
+    // };
   
 })();
 

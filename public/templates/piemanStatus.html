@@ -1,4 +1,12 @@
 <style>
+
+  ion-spinner svg {
+    width: 50px !important;
+    height: 50px !important;
+    stroke: #11c1f3;
+    fill: #8577B1;
+  }
+
   .ionic_timepicker_popup .button_set,
   .ionic_timepicker_popup .button_close,
   .ionic_timepicker_popup .heading {
@@ -46,26 +54,20 @@
   }
 </style>
 
-<ion-view title="Pieman Status" id="page1" style="background-color:#8577B1;">
+<ion-view title="Pieman Status" id="page1" ng-cloak style="background-color:#8577B1;">
   <ion-nav-buttons side="left" class="has-header">
     <button class="button button-icon icon ion-android-lock" ng-click="modal.show()"></button>
   </ion-nav-buttons>
   <ion-content padding="true" class="has-header">
 
-    <ion-refresher
-      pulling-text="Pull to refresh..."
-      on-refresh="doRefresh()">
-    </ion-refresher>
-
-
-    <div ng-show="output.loading" class="row row-center" style="height: 100%">
+    <div ng-show="output.loading" class="row row-center" style="height: 100vh; margin-top: -4%">
       <div class="col col-center">
-        <ion-spinner class="col col-center text-center"></ion-spinner>
-        <h1 class="text-center">loading</h1>
+        <ion-spinner  class="col col-center text-center light"></ion-spinner>
+        <h4 class="text-center light">loading...</h4>
       </div>
     </div>
 
-    <div ng-hide="output.loading" class="row" style="height: 100%; padding-top: 2%">
+    <div ng-hide="output.loading"  class="row" style="height: 100%; padding-top: 2%">
       <div class="col">
         <div class="row time-to text-center light">
           <div class="col col-100">
@@ -101,6 +103,22 @@
           <input ng-model="input.passcode" type="password">
         </label>
         <button class="button button-full button-calm" ng-click="login(input.passcode)">Login</button>
+      </div>
+    </ion-content>
+  </ion-modal-view>
+</script>
+
+<script id="templates/modal2.html" type="text/ng-template">
+  <ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-royal">
+      <h1 class="title">Confirm</h1>
+      <button class="button button-clear" ng-click="modal2.hide()">Cancel</button>
+    </ion-header-bar>
+    <ion-content class="padding">
+      <div class="list text-center">
+        <h4>Arrival Time: {{pretty(pietime.arrive)}}</h4>
+        <h4>Departure Time: {{pretty(pietime.depart)}}</h4>
+        <button class="button button-full button-calm" ng-click="send()">Send</button>
       </div>
     </ion-content>
   </ion-modal-view>

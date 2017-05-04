@@ -80,7 +80,8 @@ gulp.task('generate-service-worker', function(callback) {
       stripPrefix: rootDir,
       importScripts: [
         'lib/firebase/firebase.js',
-        'js/FCMScript.js'
+        'js/FCMScript.js',
+        'js/sync.js'
       ],
       // runtimeCaching: [{
       //   urlPattern: "https://pieman-d47da.firebaseio.com/pietime.json",

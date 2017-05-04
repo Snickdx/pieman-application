@@ -6,8 +6,8 @@ const moment = require('moment');
 admin.initializeApp(functions.config().firebase);
 
 
-exports.sendFollowerNotification = functions.database.ref('{pietime}').onWrite(event => {
-  const pietime = event.params.pietime;
+exports.pietimeUpdate = functions.database.ref('/pietime').onWrite(event => {
+  const pietime = event.data.val();
   let payload = {
     "notification": {
       "title": "Notipy Notification",
@@ -16,8 +16,8 @@ exports.sendFollowerNotification = functions.database.ref('{pietime}').onWrite(e
       "icon": "https://firebasestorage.googleapis.com/v0/b/pieman-d47da.appspot.com/o/pieman-144.png?alt=media&token=fae111b6-3ddf-4552-a17d-9e911090977b"
     },
     "data": {
-      "arrive":`${pietime.arrive}`,
-      "depart":`${pietime.depart}`
+      arrive: `${pietime.arrive}`,
+      depart: `${pietime.depart}`
     }
   };
 
@@ -36,13 +36,3 @@ exports.sendFollowerNotification = functions.database.ref('{pietime}').onWrite(e
     });
 
 });
-
-// exports.addMessage = functions.https.onRequest((req, res) => {
-//   // Grab the text parameter.
-//   const original = req.query.text;
-//   // Push it into the Realtime Database then send a response
-//   admin.database().ref('/messages').push({original: original}).then(snapshot => {
-//     // Redirect with 303 SEE OTHER to the URL of the pushed object in the Firebase console.
-//     res.redirect(303, snapshot.ref);
-//   });
-// });
