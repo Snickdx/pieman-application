@@ -23,39 +23,40 @@
       
       service.registerSW = () => {
         if ('serviceWorker' in navigator && 'SyncManager' in window) {
-          navigator.serviceWorker.register('service-worker.js')
-            .then(reg => {
-              msg.useServiceWorker(reg);
-              reg.onupdatefound = () => {
-            
-                let installingWorker = reg.installing;
-            
-                installingWorker.onstatechange = function() {
-                  switch (installingWorker.state) {
-                    case 'installed':
-                      if (navigator.serviceWorker.controller) {
-                        console.log('New or updated content is available.');
-                      } else {
-                        console.log('Content is now available offline!');
-                      }
-                      break;
-                    case 'redundant':
-                      console.error('The installing service worker became redundant.');
-                      break;
-                  }
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+              .then(reg => {
+                msg.useServiceWorker(reg);
+                reg.onupdatefound = () => {
+        
+                  let installingWorker = reg.installing;
+        
+                  installingWorker.onstatechange = function() {
+                    switch (installingWorker.state) {
+                      case 'installed':
+                        if (navigator.serviceWorker.controller) {
+                          console.log('New or updated content is available.');
+                        } else {
+                          console.log('Content is now available offline!');
+                        }
+                        break;
+                      case 'redundant':
+                        console.error('The installing service worker became redundant.');
+                        break;
+                    }
+                  };
+        
                 };
-                
-              };
-              
-              navigator.serviceWorker.ready.then(function(reg) {
+                return navigator.serviceWorker.ready;
+      
+              }).then(function(reg) {
                 return reg.sync.register('pietime-fetch');
+              })
+              .catch(function(e) {
+                console.error('Error during service worker registration:', e);
               });
-              
-            })
-            .catch(function(e) {
-              console.error('Error during service worker registration:', e);
-            });
-  
+          });
+          
           
         }
       };
@@ -206,15 +207,32 @@
   
       return service;
       
+    }])
+  
+    .factory('Caching', [()=>{
+      let service = {};
+      
+      service.retrieve = (name, success, failure) => {
+        localforage.getItem(name)
+          .then(data=>{
+            success(data);
+          })
+          .catch(()=>{
+            failure();
+          })
+        
+      };
+      
+      service.cacheXHR = (url) => {};
+      
+      service.cacheData = (name, data) => {
+        localforage.setItem(name, data)
+      };
+      
+      return service;
     }]);
   
-    // let w = new Worker('service-worker.js');
-    // w.onmessage = function(event) {
-    //   console.log('on message received');
-    //   localStorage.setItem('pietime', event.data);
-    //   localStorage.setItem('background', 'true');
-    // };
-  
+
 })();
 
 

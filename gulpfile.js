@@ -71,6 +71,7 @@ gulp.task('generate-service-worker', function(callback) {
         'public/lib/ionic-timepicker/dist/ionic-timepicker.bundle.min.js',
         'public/lib/ionic-datepicker/dist/ionic-datepicker.bundle.min.js',
         'public/node_modules/moment-duration-format/lib/moment-duration-format.js',
+        'public/lib/localforage/dist/localforage.js',
         'public/js/app.js',
         'public/js/controllers.js',
         'public/js/routes.js',
@@ -81,6 +82,7 @@ gulp.task('generate-service-worker', function(callback) {
       importScripts: [
         'lib/firebase/firebase.js',
         'js/FCMScript.js',
+        'lib/localforage/dist/localforage.js',
         'js/sync.js'
       ],
       // runtimeCaching: [{

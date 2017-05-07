@@ -16,6 +16,7 @@ angular.module('app.controllers', [])
     '$localStorage',
     '$state',
     '$ionicModal',
+    'Caching',
     function (
       $scope,
       ionicToast,
@@ -26,7 +27,8 @@ angular.module('app.controllers', [])
       ionicDatePicker,
       $localStorage,
       $state,
-      $ionicModal
+      $ionicModal,
+      Caching
     ) {
       $scope.pietime = {};
       
@@ -50,24 +52,31 @@ angular.module('app.controllers', [])
         passcode : null
       };
       
-      if($localStorage.pietime != undefined){
-        $scope.pietime = JSON.parse($localStorage.pietime);
-        $scope.output.loading = false;
-        console.log('Loaded from cache');
-      }else{
-        console.log('no cache present');
-      }
-  
-      $scope.pietime = Database.getObject('/pietime');
+      Caching.retrieve(
+        'pietime',
+        data => {
+          $scope.pietime = data;
+          $scope.output.loading = false;
+          console.log('Loaded from cache');
+        },
+        ()=>{
+          console.log('No cache present')
+        }
+      );
       
-      $scope.pietime.$loaded().then(data=>{
+      
+      Database.getObject('/pietime').$loaded().then(data=>{
         $scope.output.loading = false;
         Database.getTime(()=>{
           $scope.serverTime.$loaded().then((time)=>{
             $localStorage.offset = moment().diff(time.$value);
+            $scope.pietime = data;
+            $interval(()=>{
+              $scope.updateState();
+            }, 1000);
           });
         });
-        $localStorage.pietime = `{"arrive":${data.arrive}, "depart": ${data.depart}}`;
+        Caching.cacheData('pietime', {"arrive":data.arrive, "depart":data.depart});
       });
       
       Messaging.onMessage(payload=>{
@@ -75,7 +84,6 @@ angular.module('app.controllers', [])
       });
       
       $scope.updateState = () => {
-        
         let arrive = moment($scope.pietime.arrive).add($localStorage.offset, 'ms');
         let depart = moment($scope.pietime.depart).add($localStorage.offset, 'ms');
         let now = new moment();
@@ -130,9 +138,7 @@ angular.module('app.controllers', [])
         return moment(time).format(' DD MMM YYYY hh:mm:ss A');
       };
       
-      $interval(()=>{
-        $scope.updateState();
-      }, 1000);
+   
       
       function setTime(newDate, callback){
         ionicTimePicker.openTimePicker({
