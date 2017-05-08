@@ -25,9 +25,11 @@ angular.module('app', [
 
 })
 
-.run(function($ionicPlatform, Messaging) {
+.run(function($ionicPlatform, Messaging, ionicToast) {
   
-  Messaging.registerSW();
+  Messaging.registerSW(reg=>{
+    ionicToast.show("Pieman App is now available offline!", 'bottom', false, 3000);
+  });
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)

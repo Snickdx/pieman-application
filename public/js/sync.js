@@ -1,7 +1,7 @@
 self.addEventListener('sync', function (event) {
   console.log('sync event fired');
   if (event.tag === 'pietime-fetch') {
-    event.waitUntil(getPieData()
+    event.waitUntil(()=>{getPieData()
       .then(snapshot => {
         localforage.setItem('pietime', snapshot.val());
         localforage.setItem('background', Date.now());
@@ -13,7 +13,7 @@ self.addEventListener('sync', function (event) {
       })
       .catch(error =>{
         console.log('Request failed', error);
-      }));
+      })});
   }
 });
 

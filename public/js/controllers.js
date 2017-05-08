@@ -2,6 +2,8 @@
 //TODO: Schedule notification in background
 //TODO: Proper Caching with sw-precache
 //TODO: Show Updated Version and install (sw-fetch)
+//TODO: Show online clients & pieman last activity
+//TODO: ping pieman
 
 angular.module('app.controllers', [])
   
@@ -17,6 +19,7 @@ angular.module('app.controllers', [])
     '$state',
     '$ionicModal',
     'Caching',
+    '$timeout',
     function (
       $scope,
       ionicToast,
@@ -28,7 +31,8 @@ angular.module('app.controllers', [])
       $localStorage,
       $state,
       $ionicModal,
-      Caching
+      Caching,
+      $timeout
     ) {
       $scope.pietime = {};
       
@@ -38,52 +42,71 @@ angular.module('app.controllers', [])
       
       $scope.serverTime = Database.getObject('/time');
       
-      $scope.passcode = null;
-      
       $scope.output = {
         offset: null,
         countdown : null,
         state: null,
-        loading: true
+        loading: true,
+        clock: false,
+        cache: false
       };
       
       $scope.input = {
         notifications : Messaging.isEnabled(),
-        passcode : null
+        passcode : null,
       };
       
       Caching.retrieve(
         'pietime',
         data => {
-          $scope.pietime = data;
-          $scope.output.loading = false;
-          console.log('Loaded from cache');
+          if(data != null){
+            $scope.pietime = data;
+            console.log('Loaded from cache', data);
+            $scope.startClock();
+            $scope.output.clock = true;
+            $scope.output.cache = true;
+          }else{
+            console.log('No cache present')
+          }
+          
         },
-        ()=>{
-          console.log('No cache present')
+        err =>{
+          console.log(err);
         }
       );
       
-      
-      Database.getObject('/pietime').$loaded().then(data=>{
-        $scope.output.loading = false;
-        Database.getTime(()=>{
-          $scope.serverTime.$loaded().then((time)=>{
-            $localStorage.offset = moment().diff(time.$value);
-            $scope.pietime = data;
-            $interval(()=>{
-              $scope.updateState();
-            }, 1000);
+      Database.onConChange(connected => {
+        if(connected){
+          Database.getObject('/pietime').$loaded().then(data=>{
+            Database.getTimeOffset(offset=>{
+              $localStorage.offset = offset;
+              $scope.pietime = data;
+              if(!$scope.output.clock)$scope.startClock();
+            });
+            Caching.cacheData('pietime', {"arrive":data.arrive, "depart":data.depart});
           });
-        });
-        Caching.cacheData('pietime', {"arrive":data.arrive, "depart":data.depart});
+        }else{
+          $timeout(()=>{
+            if(!$scope.output.cache){
+              $scope.output.state = 'Please Connect To the Internet';
+              $scope.output.loading = false;
+            }
+          }, 3000);
+        }
       });
+  
+      $scope.startClock = ()=>{
+        $interval(()=>{
+          $scope.updateState();
+        }, 1000);
+      };
       
       Messaging.onMessage(payload=>{
         ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
       });
       
       $scope.updateState = () => {
+
         let arrive = moment($scope.pietime.arrive).add($localStorage.offset, 'ms');
         let depart = moment($scope.pietime.depart).add($localStorage.offset, 'ms');
         let now = new moment();
@@ -100,6 +123,7 @@ angular.module('app.controllers', [])
           $scope.output.state = 'Pieman is coming To SAC \nin';
           $scope.output.countdown = moment.duration(toArrive, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }
+        $scope.output.loading = false;
         
       };
       

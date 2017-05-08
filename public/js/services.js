@@ -21,7 +21,8 @@
       
       const msg = firebase.messaging();
       
-      service.registerSW = () => {
+      service.registerSW = callback => {
+        callback = callback || noop;
         if ('serviceWorker' in navigator && 'SyncManager' in window) {
           window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
@@ -38,6 +39,7 @@
                           console.log('New or updated content is available.');
                         } else {
                           console.log('Content is now available offline!');
+                          callback(reg);
                         }
                         break;
                       case 'redundant':
@@ -170,13 +172,20 @@
     
       };
       
-      service.getTime = callback =>{
-        service.set('/time', firebase.database.ServerValue.TIMESTAMP);
-        callback();
+      service.onConChange = callback => {
+        db.ref(".info/connected").on("value", snap=>{
+          callback(snap.val());
+        });
+      };
+      
+      service.getTimeOffset = callback =>{
+        db.ref(".info/serverTimeOffset").on("value", snap => {
+          callback(snap.val());
+        });
       };
   
       service.onChange = function(child, type, callback){
-        return db.ref(child).on(type, snapshot => {
+        db.ref(child).on(type, snapshot => {
           callback(snapshot);
         });
       };
@@ -217,8 +226,8 @@
           .then(data=>{
             success(data);
           })
-          .catch(()=>{
-            failure();
+          .catch(err=>{
+            failure(err);
           })
         
       };
