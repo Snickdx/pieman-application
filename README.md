@@ -11,9 +11,7 @@ The app allows a vendor to announce his arrival to his customers
 4. Simple Passcode Login for pieman and interface to update times.
 
 ## Pictures
-![enable notifications](https://github.com/Snickdx/pieman-application/blob/master/pics/notifications.png "Enable Notifications")
-![homescreen](https://github.com/Snickdx/pieman-application/blob/master/pics/homescreen.png "Add to your homescreen")
-![receive notifications](https://github.com/Snickdx/pieman-application/blob/master/pics/recieve%20notifications.png "Receive Notifications")
+![compiled](https://github.com/Snickdx/pieman-application/blob/master/pics/compiled.png "Enable Notifications")
 
 
 ## Change Log
