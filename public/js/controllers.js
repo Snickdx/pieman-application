@@ -1,9 +1,12 @@
 //TODO: Pietime background sync to update pietime on reconnect and queue pietime update and notify upon send
-//TODO: Schedule notification in background
+//TODO: local notification in background when pietime == current time
 //TODO: Proper Caching with sw-precache
-//TODO: Show Updated Version and install (sw-fetch)
+//TODO: Update button
+//TODO: Online Status
 //TODO: Show online clients & pieman last activity
 //TODO: ping pieman
+//TODO: style confirm modal,
+//TODO: Show Loading when enabling notifications and installing sw
 
 angular.module('app.controllers', [])
   
