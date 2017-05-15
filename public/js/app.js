@@ -25,9 +25,9 @@ angular.module('app', [
 
 })
 
-.run(function($ionicPlatform, Messaging, ionicToast) {
+.run(function($ionicPlatform, ServiceWorker, ionicToast) {
   
-  Messaging.registerSW(reg=>{
+  ServiceWorker.register(reg=>{
     ionicToast.show("Pieman App is now available offline!", 'bottom', false, 3000);
   });
   $ionicPlatform.ready(function() {

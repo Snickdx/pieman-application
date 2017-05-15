@@ -54,11 +54,15 @@
   }
 </style>
 
-<ion-view title="Pieman v2.1.4" id="page1" ng-cloak style="background-color:#8577B1;">
+<ion-view title="Pieman v2.1.5" id="page1" ng-cloak style="background-color:#8577B1;">
   <ion-nav-buttons side="left" class="has-header">
     <button class="button button-icon icon ion-android-lock" ng-click="modal.show()"></button>
   </ion-nav-buttons>
   <ion-content padding="true" class="has-header">
+
+    <div class="row">
+
+    </div>
 
     <div ng-show="output.loading" class="row row-center" style="height: 90vh;">
       <div class="col col-center">
@@ -67,7 +71,7 @@
       </div>
     </div>
 
-    <div ng-hide="output.loading"  class="row" style="height: 100%; padding-top: 2%">
+    <div ng-hide="output.loading"  class="row" style="height: 100%; padding-top: 10vh">
       <div class="col">
         <div class="row time-to text-center light">
           <div class="col col-100">
@@ -78,9 +82,15 @@
 
         <div class="row row-baseline">
           <div class="col col-80 col-center col-offset-10">
-            <button class="button button-full button-calm" ng-show="loggedIn" ng-click="updateTime()">Set Time</button>
+            <button class="button button-full button-calm" ng-show="output.loggedIn" ng-click="updateTime()">Set Time</button>
+
             <ion-toggle ng-model="input.notifications" ng-change="toggleNotifications()" class="toggle-calm" toggle-class="toggle-royal">Enable Notifications</ion-toggle>
           </div>
+        </div>
+
+        <div class="col col-80 col-center col-offset-10" style="margin-top: 40vh">
+          <h5 class="text-center light">App is in {{output.online ? 'online': 'offline'}} mode</h5>
+          <button  class="button button-full button-calm" ng-show="output.update" ng-click="updateApp()">Update Available Click Here</button>
         </div>
 
       </div>

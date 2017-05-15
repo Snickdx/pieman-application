@@ -1,8 +1,7 @@
 //TODO: Pietime background sync to update pietime on reconnect and queue pietime update and notify upon send
 //TODO: local notification in background when pietime == current time
 //TODO: Proper Caching with sw-precache
-//TODO: Update button
-//TODO: Online Status
+//TODO: Detect when update is available
 //TODO: Show online clients & pieman last activity
 //TODO: ping pieman
 //TODO: style confirm modal,
@@ -23,6 +22,7 @@ angular.module('app.controllers', [])
     '$ionicModal',
     'Caching',
     '$timeout',
+    'ServiceWorker',
     function (
       $scope,
       ionicToast,
@@ -35,23 +35,23 @@ angular.module('app.controllers', [])
       $state,
       $ionicModal,
       Caching,
-      $timeout
+      $timeout,
+      ServiceWorker
     ) {
       $scope.pietime = {};
       
-      $scope.loggedIn = $localStorage.loggedIn != undefined;
-      
       $scope.modal = {};
       
-      $scope.serverTime = Database.getObject('/time');
-      
       $scope.output = {
+        loggedIn: $localStorage.loggedIn != undefined,
+        update: ServiceWorker.isOutdated(),
         offset: null,
         countdown : null,
         state: null,
         loading: true,
         clock: false,
-        cache: false
+        cache: false,
+        online: false
       };
       
       $scope.input = {
@@ -80,6 +80,7 @@ angular.module('app.controllers', [])
       
       Database.onConChange(connected => {
         if(connected){
+          $scope.output.online = true;
           Database.getObject('/pietime').$loaded().then(data=>{
             Database.getTimeOffset(offset=>{
               $localStorage.offset = offset;
@@ -89,6 +90,7 @@ angular.module('app.controllers', [])
             Caching.cacheData('pietime', {"arrive":data.arrive, "depart":data.depart});
           });
         }else{
+          $scope.output.online = false;
           $timeout(()=>{
             if(!$scope.output.cache){
               $scope.output.state = 'Please Connect To the Internet';
@@ -97,6 +99,10 @@ angular.module('app.controllers', [])
           }, 3000);
         }
       });
+      
+      $scope.updateApp = () =>{
+        ServiceWorker.update();
+      };
   
       $scope.startClock = ()=>{
         $interval(()=>{
@@ -164,8 +170,6 @@ angular.module('app.controllers', [])
       $scope.pretty = (time) => {
         return moment(time).format(' DD MMM YYYY hh:mm:ss A');
       };
-      
-   
       
       function setTime(newDate, callback){
         ionicTimePicker.openTimePicker({

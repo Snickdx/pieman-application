@@ -19,4 +19,9 @@ The app allows a vendor to announce his arrival to his customers
 1. Used Indexed db for caching
 2. App finally runs offline after first load.
 
+### Version 2.1.5
+1. Now shows whether app is in online or offline mode
+2. Update app button
+3. Changed Text Alignment
+
 [App Link](https://pieman.online)
