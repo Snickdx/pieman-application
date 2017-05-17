@@ -1,11 +1,8 @@
-//TODO: Pietime background sync to update pietime on reconnect and queue pietime update and notify upon send
+//TODO: Background sync to update cache on reconnect and queue pietime update and notify upon send
 //TODO: local notification in background when pietime == current time
-//TODO: Proper Caching with sw-precache
+//TODO: Caching with sw-precache
 //TODO: Detect when update is available
-//TODO: Show online clients & pieman last activity
-//TODO: ping pieman
-//TODO: style confirm modal,
-//TODO: Show Loading when enabling notifications and installing sw
+//TODO: ping pieman cloud function
 
 angular.module('app.controllers', [])
   
@@ -51,7 +48,9 @@ angular.module('app.controllers', [])
         loading: true,
         clock: false,
         cache: false,
-        online: false
+        online: false,
+        lastonline: null,
+        pinged: $localStorage.pinged != undefined
       };
       
       $scope.input = {
@@ -81,6 +80,10 @@ angular.module('app.controllers', [])
       Database.onConChange(connected => {
         if(connected){
           $scope.output.online = true;
+          if($localStorage.loggedIn != undefined)Database.set('/lastonline', {localtime: Date.now(), servertime: Database.getTimeRef()});
+          Database.getObject('/lastonline').$loaded().then(data => {
+            $scope.output.lastonline = data.servertime;
+          });
           Database.getObject('/pietime').$loaded().then(data=>{
             Database.getTimeOffset(offset=>{
               $localStorage.offset = offset;
@@ -91,6 +94,7 @@ angular.module('app.controllers', [])
           });
         }else{
           $scope.output.online = false;
+          
           $timeout(()=>{
             if(!$scope.output.cache){
               $scope.output.state = 'Please Connect To the Internet';
@@ -99,6 +103,20 @@ angular.module('app.controllers', [])
           }, 3000);
         }
       });
+  
+      Messaging.onMessage(payload=>{
+        ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
+      });
+      
+  
+      $scope.pingObj = Database.getObject('/ping');
+      
+      $scope.pingObj.$bindTo($scope, "pingObj");
+     
+      $scope.ping = () => {
+        $localStorage.pinged = Date.now();
+        $scope.pingObj.count++;
+      };
       
       $scope.updateApp = () =>{
         ServiceWorker.update();
@@ -109,10 +127,6 @@ angular.module('app.controllers', [])
           $scope.updateState();
         }, 1000);
       };
-      
-      Messaging.onMessage(payload=>{
-        ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
-      });
       
       $scope.updateState = () => {
 
@@ -132,6 +146,11 @@ angular.module('app.controllers', [])
           $scope.output.state = 'Pieman is coming To SAC \nin';
           $scope.output.countdown = moment.duration(toArrive, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }
+        
+        let lastping = moment($localStorage.pinged);
+        let duration = moment.duration(now.diff(lastping)).asHours();
+        $scope.output.pinged = duration > 1;
+  
         $scope.output.loading = false;
         
       };
@@ -139,21 +158,23 @@ angular.module('app.controllers', [])
       $scope.toggleNotifications = () => {
     
         if($scope.input.notifications){
-      
+          console.log('enabling notifications');
+          $scope.output.loading = true;
           Messaging.enableMessaging(
             token =>{
               console.log('Token Created', token);
-          
               Messaging.subscribeToTopic(token, "pieman", response =>{
                 Database.set(`subscriptions/pieman/${token}`, true);
                 console.log('subscribed to pieman notifications', response);
+                $scope.output.loading = false;
                 ionicToast.show("Notifications Enabled!", 'bottom', false, 2000);
-            
               });
           
             },
             () =>{
               console.log('got error from service');
+              $scope.output.loading = false;
+              $scope.input.notifications = false;
               ionicToast.show("Error Enabling Notifications", 'bottom', false, 2000);
             }
           );
@@ -161,8 +182,9 @@ angular.module('app.controllers', [])
           console.log('disabling notifications');
           Messaging.disableMessaging(oldToken=>{
             Database.set(`subscriptions/pieman/${oldToken}`, null);
+            ionicToast.show("Notifications Disabled!", 'bottom', false, 2000);
           });
-          ionicToast.show("Notifications Disabled!", 'bottom', false, 2000);
+          
         }
     
       };
@@ -226,11 +248,13 @@ angular.module('app.controllers', [])
       };
       
       $scope.login = (passcode) => {
-        Database.get('/passcode').then(code => {
+        Database.get('/passcode', snapshot => {
+          let code = snapshot.val();
           if(code == passcode){
             console.log('logged in');
-            $scope.loggedIn = true;
+            $scope.output.loggedIn = true;
             $localStorage.loggedIn = true;
+            Database.set('/lastonline', {localtime: Date.now(), servertime: Database.getTimeRef()});
           }else{
             console.log('login failed', code == passcode, code, passcode);
           }

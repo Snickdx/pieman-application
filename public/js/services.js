@@ -209,14 +209,18 @@
         db.ref(child).set(data);
       };
       
-      service.get = function(child){
-        return db.ref(child).once("value").then(function(snapshot){
-          return snapshot.val();
+      service.get = (child, callback) =>{
+        db.ref(child).once("value").then(function(snapshot){
+          callback(snapshot);
         });
       };
       
       service.getList = function(child){
         
+      };
+      
+      service.getTimeRef = ()=>{
+        return firebase.database.ServerValue.TIMESTAMP;
       };
       
       service.onConChange = callback => {
@@ -259,6 +263,34 @@
       
       service.getObject = function(child){
         return $firebaseObject(db.ref(child));
+      };
+      
+      return service;
+      
+    }])
+    
+    .factory('Auth', ['$firebaseAuth', $firebaseAuth=>{
+      let service = {};
+      
+      service.auth = $firebaseAuth(firebase.auth());
+      
+      service.anonLogin = (success, failure)=>{
+        
+        service.auth.$signInAnonymously().catch(error=>{
+          failure(error);
+        });
+  
+        service.auth.$onAuthStateChanged(user=>{
+          success(user);
+        });
+      };
+      
+      service.currentUser = () => {
+        return firebase.auth().currentUser;
+      };
+      
+      service.onAuth = callback => {
+        
       };
       
       return service;

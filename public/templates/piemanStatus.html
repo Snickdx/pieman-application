@@ -54,15 +54,11 @@
   }
 </style>
 
-<ion-view title="Pieman v2.1.5" id="page1" ng-cloak style="background-color:#8577B1;">
+<ion-view title="Pieman v2.1.6" id="page1" ng-cloak style="background-color:#8577B1;">
   <ion-nav-buttons side="left" class="has-header">
     <button class="button button-icon icon ion-android-lock" ng-click="modal.show()"></button>
   </ion-nav-buttons>
-  <ion-content padding="true" class="has-header">
-
-    <div class="row">
-
-    </div>
+  <ion-content class="has-header">
 
     <div ng-show="output.loading" class="row row-center" style="height: 90vh;">
       <div class="col col-center">
@@ -71,31 +67,35 @@
       </div>
     </div>
 
-    <div ng-hide="output.loading"  class="row" style="height: 100%; padding-top: 10vh">
+    <div ng-hide="output.loading"  class="row" style="padding-top: 10vh; padding-bottom: 10vh">
       <div class="col">
-        <div class="row time-to text-center light">
+        <div class="row time-to text-center light" style="height: 20vh">
           <div class="col col-100">
             <h1 class="text-center light">{{output.state}}</h1>
             <h1 class="text-center light">{{output.countdown}}</h1>
           </div>
         </div>
 
-        <div class="row row-baseline">
-          <div class="col col-80 col-center col-offset-10">
-            <button class="button button-full button-calm" ng-show="output.loggedIn" ng-click="updateTime()">Set Time</button>
+        <div class="row row-baseline" style="height: 30vh">
+          <div class="col col-80 col-center col-offset-10"ng-show="output.loggedIn">
+            <button class="button button-full button-calm"  ng-click="updateTime()">Set Time</button>
+          </div>
+
+          <div class="col col-80 col-center col-offset-10" ng-show="!output.loggedIn">
+            <button class="button button-full button-calm" ng-disabled="!output.pinged" ng-click="ping()">{{!output.pinged ? "Ping Sent":"Ping Pieman"}} {{pingObj.count}}/100</button>
 
             <ion-toggle ng-model="input.notifications" ng-change="toggleNotifications()" class="toggle-calm" toggle-class="toggle-royal">Enable Notifications</ion-toggle>
           </div>
         </div>
 
-        <div class="col col-80 col-center col-offset-10" style="margin-top: 40vh">
+        <div class="col col-80 col-center col-offset-10" style="height: 20vh">
           <h5 class="text-center light">App is in {{output.online ? 'online': 'offline'}} mode</h5>
+          <h5 class="text-center light" ng-show="output.lastonline != null">Pieman was last online on {{pretty(output.lastonline)}}</h5>
           <button  class="button button-full button-calm" ng-show="output.update" ng-click="updateApp()">Update Available Click Here</button>
         </div>
 
       </div>
     </div>
-
 
   </ion-content>
 </ion-view>
@@ -125,9 +125,11 @@
       <button class="button button-clear" ng-click="modal2.hide()">Cancel</button>
     </ion-header-bar>
     <ion-content class="padding">
-      <div class="list text-center">
-        <h4>Arrival Time: {{pretty(pietime.arrive)}}</h4>
-        <h4>Departure Time: {{pretty(pietime.depart)}}</h4>
+      <div class="list text-center" style="padding-top: 24vh; height: 50vh">
+        <h4 class="text-center">Arrival Time: {{pretty(pietime.arrive)}}</h4>
+        <h4 class="text-center">Departure Time: {{pretty(pietime.depart)}}</h4>
+      </div>
+      <div>
         <button class="button button-full button-calm" ng-click="send()">Send</button>
       </div>
     </ion-content>

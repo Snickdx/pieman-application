@@ -9431,7 +9431,8 @@ a.button {
  * --------------------------------------------------
  */
 .padding {
-  padding: 10px; }
+  padding: 10px;
+  }
 
 .padding-top,
 .padding-vertical {
