@@ -115,7 +115,9 @@ angular.module('app.controllers', [])
      
       $scope.ping = () => {
         $localStorage.pinged = Date.now();
+        $scope.output.pinged = true;
         $scope.pingObj.count++;
+        ionicToast.show("Ping Sent! You can send another in 1 hour", 'bottom', false, 2000);
       };
       
       $scope.updateApp = () =>{
@@ -147,10 +149,12 @@ angular.module('app.controllers', [])
           $scope.output.countdown = moment.duration(toArrive, "milliseconds").format("d[d] h[H] : mm[M] : ss[S]");
         }
         
-        let lastping = moment($localStorage.pinged);
-        let duration = moment.duration(now.diff(lastping)).asHours();
-        $scope.output.pinged = duration > 1;
-  
+        if($localStorage.pinged != undefined){
+          let lastping = moment($localStorage.pinged);
+          let duration = moment.duration(now.diff(lastping)).asHours();
+          $scope.output.pinged =  duration < 1 ;
+        }
+        
         $scope.output.loading = false;
         
       };
@@ -254,9 +258,24 @@ angular.module('app.controllers', [])
             console.log('logged in');
             $scope.output.loggedIn = true;
             $localStorage.loggedIn = true;
+            $scope.output.loading = true;
+            Messaging.enableMessaging(
+              token =>{
+                console.log('Token Created', token);
+                Database.set(`/piemanToken/${token}`, true);
+                $scope.output.loading = false;
+                ionicToast.show("Notifications Enabled!", 'bottom', false, 2000);
+              },
+              () =>{
+                console.log('got error from service');
+                $scope.output.loading = false;
+                ionicToast.show("Error Enabling Notifications", 'bottom', false, 2000);
+              }
+            );
             Database.set('/lastonline', {localtime: Date.now(), servertime: Database.getTimeRef()});
           }else{
             console.log('login failed', code == passcode, code, passcode);
+            ionicToast.show("Login Failed, you sure you is Pieman?", 'bottom', false, 4000);
           }
           $scope.modal.hide();
         });
