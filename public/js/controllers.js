@@ -3,6 +3,7 @@
 //TODO: Caching with sw-precache
 //TODO: Detect when update is available
 //TODO: ping pieman cloud function
+//TODO: Share Button
 
 angular.module('app.controllers', [])
   
