@@ -1,3 +1,4 @@
+const wbBuild = require('workbox-build');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var bower = require('bower');
@@ -6,6 +7,7 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
+var swPrecache = require('sw-precache');
 var paths = {
   sass: ['./scss/**/*.scss']
 };
@@ -85,21 +87,76 @@ gulp.task('generate-service-worker', function(callback) {
         'lib/localforage/dist/localforage.js',
         'js/sync.js'
       ],
-      // runtimeCaching: [{
-      //   urlPattern: "https://pieman-d47da.firebaseio.com/pietime.json",
-      //   handler: 'fastest',
-      //   options: {
-      //     cache: {
-      //       maxEntries: 10,
-      //       name: 'pie-cache'
-      //     }
-      //   }
-      // }]
+      runtimeCaching: [{
+        urlPattern: /^https:\/\/pieman-d47da\.firebaseio\.com\/pietime.json/,
+        handler: 'fastest'
+      }]
     },
     callback
   );
 });
 
+gulp.task('generate-sw',
+  
+  function(callback) {
+    var rootDir = 'public';
+    swPrecache.write('app/service-worker.js',
+      {
+        //1
+        staticFileGlobs: [
+          'public/**/*.{html,png,jpg,gif,svg,eot,ttf,woff}',
+          'public/fonts/roboto/css/fonts.css',
+          'public/lib/ionic/js/ionic.bundle.js',
+          'public/css/ionic.app.css',
+          'public/lib/moment/min/moment.min.js',
+          'public/lib/firebase/firebase.js',
+          'public/lib/firebase/firebase-messaging.js',
+          'public/lib/angularfire/dist/angularfire.min.js',
+          'public/lib/ionic-toast/dist/ionic-toast.bundle.min.js',
+          'public/lib/ngstorage/ngStorage.min.js',
+          'public/lib/ionic-timepicker/dist/ionic-timepicker.bundle.min.js',
+          'public/lib/ionic-datepicker/dist/ionic-datepicker.bundle.min.js',
+          'public/node_modules/moment-duration-format/lib/moment-duration-format.js',
+          'public/lib/localforage/dist/localforage.js',
+          'public/js/app.js',
+          'public/js/controllers.js',
+          'public/js/routes.js',
+          'public/js/directives.js',
+          'public/js/services.js'
+        ],
+        // 2
+        importScripts: [
+          'app/node_modules/sw-toolbox/sw-toolbox.js',
+          'app/js/toolbox-script.js',
+          'lib/firebase/firebase.js',
+          'js/FCMScript.js',
+          'lib/localforage/dist/localforage.js',
+          'js/sync.js'
+        ],
+        // 3
+        stripPrefix: rootDir
+      },
+      callback
+    );
+  });
+
+gulp.task('bundle-sw', () => {
+  return wbBuild.generateSW({
+    globDirectory: './public',
+    swDest: './public/sw.js',
+    staticFileGlobs: ['**\/*.{html,js,css,png,jpg,gif,svg,eot,ttf,woff}'],
+    globIgnores: ['admin.html']
+  })
+    .then(() => {
+      console.log('Service worker generated.');
+    })
+    .catch((err) => {
+      console.log('[ERROR] This happened: ' + err);
+    });
+});
+
 gulp.task('deploy', ['generate-service-worker'], function(){
   sh.exec('firebase deploy');
 });
+
+
