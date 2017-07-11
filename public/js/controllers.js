@@ -59,6 +59,9 @@ angular.module('app.controllers', [])
         passcode : null,
       };
       
+      
+      //********************************** Call Services **************************************
+      
       Caching.retrieve(
         'pietime',
         data => {
@@ -77,6 +80,7 @@ angular.module('app.controllers', [])
           console.log(err);
         }
       );
+      
       
       Database.onConChange(connected => {
         if(connected){
@@ -104,16 +108,29 @@ angular.module('app.controllers', [])
           }, 3000);
         }
       });
-  
+      
       Messaging.onMessage(payload=>{
         ionicToast.show(payload.notification.title+" : "+payload.notification.body, 'bottom', false, 4000);
       });
       
-  
+      $ionicModal.fromTemplateUrl('templates/modal.html', {
+        scope: $scope
+      }).then(function(modal) {
+        $scope.modal = modal;
+      });
+      
+      $ionicModal.fromTemplateUrl('templates/modal2.html', {
+        scope: $scope
+      }).then(function(modal) {
+        $scope.modal2 = modal;
+      });
+      
+      //**********************************Scope Functions **************************************
+      
       $scope.pingObj = Database.getObject('/ping');
       
       $scope.pingObj.$bindTo($scope, "pingObj");
-     
+      
       $scope.ping = () => {
         $localStorage.pinged = Date.now();
         $scope.output.pinged = true;
@@ -124,7 +141,7 @@ angular.module('app.controllers', [])
       $scope.updateApp = () =>{
         ServiceWorker.update();
       };
-  
+      
       $scope.startClock = ()=>{
         $interval(()=>{
           $scope.updateState();
@@ -132,7 +149,7 @@ angular.module('app.controllers', [])
       };
       
       $scope.updateState = () => {
-
+        
         let arrive = moment($scope.pietime.arrive).add($localStorage.offset, 'ms');
         let depart = moment($scope.pietime.depart).add($localStorage.offset, 'ms');
         let now = new moment();
@@ -161,7 +178,7 @@ angular.module('app.controllers', [])
       };
       
       $scope.toggleNotifications = () => {
-    
+        
         if($scope.input.notifications){
           console.log('enabling notifications');
           $scope.output.loading = true;
@@ -174,7 +191,7 @@ angular.module('app.controllers', [])
                 $scope.output.loading = false;
                 ionicToast.show("Notifications Enabled!", 'bottom', false, 2000);
               });
-          
+              
             },
             () =>{
               console.log('got error from service');
@@ -191,26 +208,12 @@ angular.module('app.controllers', [])
           });
           
         }
-    
+        
       };
       
       $scope.pretty = (time) => {
         return moment(time).format(' DD MMM YYYY hh:mm:ss A');
       };
-      
-      function setTime(newDate, callback){
-        ionicTimePicker.openTimePicker({
-          callback: function (newTime) {
-            if (typeof (newTime) === 'undefined') {
-              console.log('Time not selected');
-            } else {
-              callback(moment(newDate) + new Date(newTime)*1000);
-            }
-          },
-          format: 12,
-          step: 1
-        });
-      }
       
       $scope.updateTime = () => {
         
@@ -282,18 +285,32 @@ angular.module('app.controllers', [])
         });
         
       };
-  
-      $ionicModal.fromTemplateUrl('templates/modal.html', {
-        scope: $scope
-      }).then(function(modal) {
-        $scope.modal = modal;
-      });
-  
-      $ionicModal.fromTemplateUrl('templates/modal2.html', {
-        scope: $scope
-      }).then(function(modal) {
-        $scope.modal2 = modal;
-      });
+      
+      $scope.noteTest = () => {
+        ServiceWorker.showNotification({});
+      };
+      
+      $scope.syncTest = () => {
+        ServiceWorker.sync('pietime-fetch2', () =>{
+          console.log("I think we cooking with ting here");
+        });
+      };
+      
+      //************************************* Helper Functions ***********************************
+      
+      function setTime(newDate, callback){
+        ionicTimePicker.openTimePicker({
+          callback: function (newTime) {
+            if (typeof (newTime) === 'undefined') {
+              console.log('Time not selected');
+            } else {
+              callback(moment(newDate) + new Date(newTime)*1000);
+            }
+          },
+          format: 12,
+          step: 1
+        });
+      }
       
     }]);
   

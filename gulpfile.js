@@ -1,14 +1,14 @@
-const wbBuild = require('workbox-build');
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var bower = require('bower');
-var concat = require('gulp-concat');
-var sass = require('gulp-sass');
-var minifyCss = require('gulp-minify-css');
-var rename = require('gulp-rename');
-var sh = require('shelljs');
-var swPrecache = require('sw-precache');
-var paths = {
+const gulp = require('gulp');
+const gutil = require('gulp-util');
+const bower = require('bower');
+const concat = require('gulp-concat');
+const sass = require('gulp-sass');
+const minifyCss = require('gulp-minify-css');
+const rename = require('gulp-rename');
+const sh = require('shelljs');
+const swPrecache = require('sw-precache');
+
+const paths = {
   sass: ['./scss/**/*.scss']
 };
 
@@ -52,9 +52,9 @@ gulp.task('git-check', function(done) {
 });
 
 gulp.task('generate-service-worker', function(callback) {
-  var path = require('path');
-  var swPrecache = require('sw-precache');
-  var rootDir = 'public';
+  const path = require('path');
+  const swPrecache = require('sw-precache');
+  const rootDir = 'public';
   
   swPrecache.write(
     path.join(rootDir, 'service-worker.js'),
@@ -82,15 +82,32 @@ gulp.task('generate-service-worker', function(callback) {
       ],
       stripPrefix: rootDir,
       importScripts: [
+        'js/caching.js',
         'lib/firebase/firebase.js',
         'js/FCMScript.js',
         'lib/localforage/dist/localforage.js',
         'js/sync.js'
       ],
-      runtimeCaching: [{
-        urlPattern: /^https:\/\/pieman-d47da\.firebaseio\.com\/pietime.json/,
-        handler: 'fastest'
-      }]
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/pieman-d47da\.firebaseio\.com\/pietime.json/,
+          handler: 'fastest',
+          options: {
+            cache: {
+              name: 'pietime'
+            }
+          }
+        },
+        {
+          urlPattern: /https:\/\/www\.reddit\.com\/r\/\w{1,255}\.json/,
+          handler: 'networkFirst',
+          options: {
+            cache: {
+              name: 'titles'
+            }
+          }
+        },
+      ]
     },
     callback
   );
@@ -99,7 +116,7 @@ gulp.task('generate-service-worker', function(callback) {
 gulp.task('generate-sw',
   
   function(callback) {
-    var rootDir = 'public';
+    const rootDir = 'public';
     swPrecache.write('app/service-worker.js',
       {
         //1
@@ -139,21 +156,6 @@ gulp.task('generate-sw',
       callback
     );
   });
-
-gulp.task('bundle-sw', () => {
-  return wbBuild.generateSW({
-    globDirectory: './public',
-    swDest: './public/sw.js',
-    staticFileGlobs: ['**\/*.{html,js,css,png,jpg,gif,svg,eot,ttf,woff}'],
-    globIgnores: ['admin.html']
-  })
-    .then(() => {
-      console.log('Service worker generated.');
-    })
-    .catch((err) => {
-      console.log('[ERROR] This happened: ' + err);
-    });
-});
 
 gulp.task('deploy', ['generate-service-worker'], function(){
   sh.exec('firebase deploy');

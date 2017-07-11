@@ -36,54 +36,81 @@
         
       };
       
-      service.showNotification = () => {};
+      service.showNotification = notification => {
+        if(service.registration == null){
+          console.log('registration is null')
+        }else{
+          service.registration.showNotification('Vibration Sample', {
+            body: 'Buzz! Buzz!',
+            icon: '../img/pieman-192.png',
+            badge: '../img/pieman-128.png',
+            vibrate: [200, 100, 200, 100, 200, 100, 200],
+            tag: 'vibration-sample'
+          });
+        }
+      };
+      
+      service.registerSync = (syncName, callback) => {
+        if(service.registration == null){
+          console.log('registration is null')
+        }else {
+          if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            service.registration.sync.register(syncName);
+            console.log(`${syncName} registered`);
+          }
+        }
+      };
       
       service.register = (success, failure) => {
         success = success || noop;
         failure = failure || noop;
         
-        if ('serviceWorker' in navigator && 'SyncManager' in window) {
-          
-          navigator.serviceWorker.register(
-            'service-worker.js',
-            {scope: scope}
-          )
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register(
+              'service-worker.js',
+              {scope: scope}
+            )
             .then(reg => {
-              service.reg = reg;
-              service.sw = navigator.serviceWorker;
+              service.registration = reg;
+              service.sw = reg.installing;
               
               reg.onupdatefound = () => {
-                
-                let installingWorker = reg.installing;
-                
-                installingWorker.onstatechange = function() {
-                  switch (installingWorker.state) {
-                    case 'installed':
-                      if (navigator.serviceWorker.controller) {
-                        console.log('New or updated content is available.');
-                      } else {
-                        console.log('Content is now available offline!');
-                        success(reg);
-                      }
-                      break;
-                    case 'redundant':
-                      console.error('The installing service worker became redundant.');
-                      break;
-                  }
+    
+                reg.installing.onstatechange = function() {
+                    if (navigator.serviceWorker.controller) {
+                      console.log('New or updated content is available.');
+                    } else {
+                      console.log('Content is now available offline!');
+                      success(reg);
+                    }
                 };
-                
+    
               };
+  
               return navigator.serviceWorker.ready;
-              
+    
             })
-            .then(reg =>{
-              return reg.sync.register('pietime-fetch');
-            })
-            .catch(e=>{
-              console.error('Error during service worker registration:', e);
+            .catch(e => {
+              console.error("Error installing service worker", e)
             });
+          });
+  
+          service.sw.addEventListener('statechange', function (e) {
+            console.log('State Updated', e.target.state);
+            service.sw.addEventListener('sync', function(event) {
+              console.log("yea we cooking with ting now", event);
+              // if (event.tag == 'myFirstSync') {
+              //   event.waitUntil(doSomeStuff());
+              // }
+            });
+          });
+        }else {
+          console.error("Service Worker not supported!");
         }
+        
       };
+      
       
       service.update = () => {
         service.getRegistration(reg=>{
