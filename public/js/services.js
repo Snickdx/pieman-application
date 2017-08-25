@@ -22,6 +22,10 @@
       
       service.sw = null;
       
+      service.syncManager = null;
+      
+      service.pushManager = null;
+      
       service.registration = null;
       
       service.getRegistration = (success, failure) => {
@@ -34,6 +38,14 @@
           failure(err);
         });
         
+      };
+      
+      service.getNotifications = () => {
+        return service.registration.getNotifications();
+      };
+      
+      service.update = () => {
+        service.registration.update()
       };
       
       service.showNotification = notification => {
@@ -50,15 +62,11 @@
         }
       };
       
-      service.registerSync = (syncName, callback) => {
-        if(service.registration == null){
-          console.log('registration is null')
-        }else {
-          if ('serviceWorker' in navigator && 'SyncManager' in window) {
-            service.registration.sync.register(syncName);
-            console.log(`${syncName} registered`);
-          }
-        }
+      service.registerSync = (syncName) => {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.sync.register(syncName);
+          console.log(`${syncName} registered`);
+        });
       };
       
       service.register = (success, failure) => {
@@ -73,20 +81,21 @@
             )
             .then(reg => {
               service.registration = reg;
+              service.syncManager = reg.sync;
+              service.pushManager = reg.pushManager;
               service.sw = reg.installing;
               
               reg.onupdatefound = () => {
-    
                 reg.installing.onstatechange = function() {
                     if (navigator.serviceWorker.controller) {
                       console.log('New or updated content is available.');
                     } else {
                       console.log('Content is now available offline!');
-                      success(reg);
                     }
                 };
-    
               };
+  
+              success();
   
               return navigator.serviceWorker.ready;
     
@@ -95,22 +104,12 @@
               console.error("Error installing service worker", e)
             });
           });
-  
-          service.sw.addEventListener('statechange', function (e) {
-            console.log('State Updated', e.target.state);
-            service.sw.addEventListener('sync', function(event) {
-              console.log("yea we cooking with ting now", event);
-              // if (event.tag == 'myFirstSync') {
-              //   event.waitUntil(doSomeStuff());
-              // }
-            });
-          });
+          
         }else {
           console.error("Service Worker not supported!");
         }
         
       };
-      
       
       service.update = () => {
         service.getRegistration(reg=>{
@@ -243,7 +242,7 @@
       };
       
       service.getList = function(child){
-        
+      
       };
       
       service.getTimeRef = ()=>{
@@ -317,7 +316,7 @@
       };
       
       service.onAuth = callback => {
-        
+      
       };
       
       return service;

@@ -5,6 +5,6 @@
   src: local('Roboto'),
        local('Roboto-regular'),
        url('../fonts/Roboto-regular/Roboto-regular.woff2') format('woff2'),
-       url('../fonts/Roboto-regular/Roboto-regular.woff') format('woff'),
+       url('../fonts/Roboto-regular/Roboto-regular.woff') format('font-woff'),
        url('../fonts/Roboto-regular/Roboto-regular.ttf') format('truetype');
 }

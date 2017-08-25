@@ -1,6 +1,6 @@
-//TODO: Background sync to update cache on reconnect and queue pietime update and notify upon send
+//TODO: Background sync to queue pietime update and notify upon send
 //TODO: local notification in background when pietime == current time
-//TODO: Caching with sw-precache
+//TODO: Move from indexedDb to Runtime Caching
 //TODO: Detect when update is available
 //TODO: ping pieman cloud function
 //TODO: Share Button
@@ -291,9 +291,7 @@ angular.module('app.controllers', [])
       };
       
       $scope.syncTest = () => {
-        ServiceWorker.sync('pietime-fetch2', () =>{
-          console.log("I think we cooking with ting here");
-        });
+        ServiceWorker.registerSync('pie-fetch');
       };
       
       //************************************* Helper Functions ***********************************

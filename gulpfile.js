@@ -82,9 +82,9 @@ gulp.task('generate-service-worker', function(callback) {
       ],
       stripPrefix: rootDir,
       importScripts: [
-        'js/caching.js',
+        // 'js/caching.js',
         'lib/firebase/firebase.js',
-        'js/FCMScript.js',
+        'js/messaging.js',
         'lib/localforage/dist/localforage.js',
         'js/sync.js'
       ],
